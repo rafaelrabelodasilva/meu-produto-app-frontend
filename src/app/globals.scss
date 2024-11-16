@@ -1,0 +1,31 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  outline: 0;
+	font-family:Arial;
+}
+
+:root {
+  --white: #FFF;
+  --black: #000;
+
+  --dark-900: #101026;
+  --dark-700: #1d1d2e;
+
+  --gray-100: #8a8a8a;
+  --green-900: #3fffa3;
+  --red-900: #FF3f4b;
+
+  --cyan: darkcyan;
+  --cyan-light: rgb(0, 172, 172);
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-rendering: none;
+}
