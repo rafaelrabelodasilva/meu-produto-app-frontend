@@ -19,7 +19,9 @@ import { useFocusEffect, router } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 const numColumns = width > 1000 ? 5 : width > 600 ? 4 : 2;
-const cardWidth = (width - 48 - (numColumns - 1) * 12) / numColumns;
+const paddingTotal = 36; // 18 de cada lado
+const gapTotal = (numColumns - 1) * 12;
+const cardWidth = (width - paddingTotal - gapTotal) / numColumns;
 
 // Importar Constants para pegar o IP dinâmico
 import Constants from 'expo-constants';
