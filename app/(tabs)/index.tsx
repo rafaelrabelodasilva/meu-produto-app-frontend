@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, router } from 'expo-router';
 
 const { width } = Dimensions.get('window');
-const numColumns = width > 600 ? 3 : 2;
+const numColumns = width > 1000 ? 5 : width > 600 ? 4 : 2;
 const cardWidth = (width - 48 - (numColumns - 1) * 12) / numColumns;
 
 // Importar Constants para pegar o IP dinâmico
@@ -52,15 +52,14 @@ export default function DashboardScreen() {
   ];
 
   const fetchProducts = async () => {
-    if (!token) return;
+    if (!token) return; // 👈 Evita chamadas após o logout
     try {
-      const data = await productsApi.list(token);
+      const data = await productsApi.list();
       setProducts(Array.isArray(data) ? data : data.data || []);
     } catch (error: any) {
       console.error('Erro ao buscar produtos:', error);
-      if (error.message === 'Unauthorized' || error.message.includes('401')) {
-        signOut(); // Força logout se o token não for mais válido
-      }
+      // O signOut será tratado automaticamente pelo listener de TOKEN_CLEARED no AuthContext
+      // se o refresh falhar dentro do apiFetch.
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -308,7 +307,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   columnWrapper: {
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
+    gap: 12,
     marginBottom: 12,
   },
   card: {

@@ -36,10 +36,10 @@ export default function ProfileScreen() {
   const fetchUserProfile = async () => {
     if (!token) return;
     try {
-      const authData = await authApi.getMe(token);
+      const authData = await authApi.getMe();
       // O endpoint 'me' retorna apenas userId e email. 
       // Agora buscamos os dados completos do usuário usando o userId.
-      const userData = await apiFetch(`/users/${authData.userId}`, {}, token);
+      const userData = await apiFetch(`/users/${authData.userId}`);
       setUser({ ...authData, ...userData });
     } catch (error) {
       console.error('Erro ao buscar perfil:', error);
@@ -70,9 +70,9 @@ export default function ProfileScreen() {
           text: 'Excluir Permanentemente', 
           style: 'destructive', 
           onPress: async () => {
-            if (!token || !user?.userId) return;
+            if (!user?.userId) return;
             try {
-              await userApi.deleteAccount(token, user.userId);
+              await userApi.deleteAccount(user.userId);
               Alert.alert('Conta Excluída', 'Seus dados foram removidos com sucesso.');
               signOut();
             } catch (error) {

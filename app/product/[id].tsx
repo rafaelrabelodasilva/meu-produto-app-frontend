@@ -64,9 +64,9 @@ export default function ProductDetailScreen() {
   }, [id, token]);
 
   const fetchProduct = async () => {
-    if (!token || !id) return;
+    if (!id) return;
     try {
-      const data = await productsApi.get(token, id as string);
+      const data = await productsApi.get(id as string);
       setProduct(data);
       setEditData(data);
 
@@ -110,7 +110,7 @@ export default function ProductDetailScreen() {
   };
 
   const handleUpdate = async () => {
-    if (!token || !id) return;
+    if (!id) return;
     setSaving(true);
     try {
       const updatedSize = `${measures.height || '0'} x ${measures.width || '0'} x ${measures.depth || '0'} cm`;
@@ -126,7 +126,7 @@ export default function ProductDetailScreen() {
       };
 
       // 1. Atualizar textos
-      await productsApi.update(token, id as string, payload);
+      await productsApi.update(id as string, payload);
 
       // 2. Atualizar Foto do Produto (PRODUCT)
       if (newImageUri) {
@@ -172,14 +172,7 @@ export default function ProductDetailScreen() {
     
     formData.append('type', type);
 
-    return fetch(`${BASE_URL}/products/${id}/images/${imageId}`, {
-      method: 'PATCH',
-      body: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+    return productsApi.updateImage(id as string, imageId, formData);
   };
 
   const uploadNewImage = async (uri: string, type: string) => {
@@ -195,14 +188,7 @@ export default function ProductDetailScreen() {
 
     formData.append('type', type);
 
-    return fetch(`${BASE_URL}/products/${id}/images`, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+    return productsApi.uploadImage(id as string, formData);
   };
 
   const handleDelete = () => {
@@ -215,9 +201,9 @@ export default function ProductDetailScreen() {
           text: 'Sim, Remover', 
           style: 'destructive',
           onPress: async () => {
-            if (!token || !id) return;
+            if (!id) return;
             try {
-              await productsApi.delete(token, id as string);
+              await productsApi.delete(id as string);
               router.replace('/(tabs)');
             } catch (error) {
               console.error('Erro ao deletar:', error);

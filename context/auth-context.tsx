@@ -1,13 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { useRouter, useSegments } from 'expo-router';
+import { DeviceEventEmitter } from 'react-native';
+import { AUTH_EVENTS } from '../services/api';
 
 const TOKEN_KEY = 'user_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
 interface AuthContextType {
   token: string | null;
   isLoading: boolean;
-  signIn: (token: string) => Promise<void>;
+  signIn: (accessToken: string, refreshToken: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -41,24 +44,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     loadToken();
+
+    // Listeners para eventos do api.ts
+    const refreshSub = DeviceEventEmitter.addListener(AUTH_EVENTS.TOKEN_REFRESHED, (newToken) => {
+      setToken(newToken);
+    });
+
+    const clearSub = DeviceEventEmitter.addListener(AUTH_EVENTS.TOKEN_CLEARED, () => {
+      setToken(null);
+    });
+
+    return () => {
+      refreshSub.remove();
+      clearSub.remove();
+    };
   }, []);
 
-  const signIn = async (newToken: string) => {
+  const signIn = async (accessToken: string, refreshToken: string) => {
     try {
-      await SecureStore.setItemAsync(TOKEN_KEY, newToken);
-      setToken(newToken);
+      await SecureStore.setItemAsync(TOKEN_KEY, accessToken);
+      await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken);
+      setToken(accessToken);
     } catch (e) {
-      console.error('Failed to save token', e);
+      console.error('Failed to save tokens', e);
     }
   };
 
   const signOut = async () => {
     try {
       await SecureStore.deleteItemAsync(TOKEN_KEY);
+      await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
       setToken(null);
-      // Forçar redirecionamento para a raiz que levará ao login
     } catch (e) {
-      console.error('Failed to delete token', e);
+      console.error('Failed to delete tokens', e);
     }
   };
 

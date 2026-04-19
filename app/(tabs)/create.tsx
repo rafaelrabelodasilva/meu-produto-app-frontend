@@ -124,11 +124,6 @@ export default function CreateProductScreen() {
   };
 
   const handleSubmit = async () => {
-    if (!images.product) {
-      Alert.alert('Foto necessária', 'Por favor, tire pelo menos a foto principal do produto.');
-      return;
-    }
-
     if (!token) {
       Alert.alert('Sessão expirada', 'Por favor, faça login novamente.');
       signOut();
@@ -147,7 +142,7 @@ export default function CreateProductScreen() {
         notes: formData.category ? `Categoria: ${formData.category}` : '',
       };
 
-      const createdProduct = await productsApi.create(token, productData);
+      const createdProduct = await productsApi.create(productData);
       const productId = createdProduct.id;
 
       // 2. Fazer upload das fotos com o tipo correto
@@ -172,13 +167,7 @@ export default function CreateProductScreen() {
     } catch (error: any) {
       console.error('Erro ao salvar:', error);
       const msg = error.message || 'Erro desconhecido';
-      
-      if (msg === 'Unauthorized' || msg.includes('401')) {
-        Alert.alert('Sessão expirada', 'Sua sessão não é mais válida. Por favor, entre novamente.');
-        signOut();
-      } else {
-        Alert.alert('Erro', `Não foi possível salvar: ${msg}`);
-      }
+      Alert.alert('Erro', `Não foi possível salvar: ${msg}`);
     } finally {
       setLoading(false);
     }
@@ -197,17 +186,7 @@ export default function CreateProductScreen() {
 
     formData.append('type', type);
 
-    // Pegar IP dinâmico
-    const BASE_URL = `http://192.168.0.15:3000`; // Usando o IP padrão do projeto
-
-    return fetch(`${BASE_URL}/products/${productId}/images`, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
+    return productsApi.uploadImage(productId, formData);
   };
 
   const renderStep1 = () => (
@@ -355,7 +334,7 @@ export default function CreateProductScreen() {
       <Text style={styles.sectionTitle}>Registro Visual</Text>
       
       <View style={styles.photoContainer}>
-        <Text style={styles.photoLabel}>Foto do Produto *</Text>
+        <Text style={styles.photoLabel}>Foto do Produto (Opcional)</Text>
         <TouchableOpacity 
           style={[styles.photoBox, images.product && styles.photoBoxActive]} 
           onPress={() => pickImage('product')}

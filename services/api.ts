@@ -1,4 +1,14 @@
 import Constants from 'expo-constants';
+import * as SecureStore from 'expo-secure-store';
+import { DeviceEventEmitter } from 'react-native';
+
+const TOKEN_KEY = 'user_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
+
+export const AUTH_EVENTS = {
+  TOKEN_REFRESHED: 'auth:token_refreshed',
+  TOKEN_CLEARED: 'auth:token_cleared',
+};
 
 // Detecta o IP da máquina de desenvolvimento automaticamente para funcionar em Celular Físico e Emulador
 const debuggerHost = Constants.expoConfig?.hostUri;
@@ -11,22 +21,71 @@ const API_URL = localhost
 console.log('API_URL configurada para:', API_URL);
 
 export async function apiFetch(endpoint: string, options: RequestInit = {}, token?: string | null) {
+  const isFormData = options.body instanceof FormData;
+  
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...options.headers,
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  const currentToken = token || (await SecureStore.getItemAsync(TOKEN_KEY));
+
+  if (currentToken) {
+    headers['Authorization'] = `Bearer ${currentToken}`;
   }
 
   console.log(`Fazendo fetch em: ${API_URL}${endpoint}`);
   
   try {
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    let response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
       headers,
     });
+
+    // Se der 401 Unauthorized e não for uma rota de auth básica, tentamos o refresh
+    if (response.status === 401 && endpoint !== '/auth/login' && endpoint !== '/auth/refresh') {
+      console.log('Token expirado (401), tentando refresh...');
+      const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+      
+      if (refreshToken) {
+        try {
+          const refreshResponse = await fetch(`${API_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshToken }),
+          });
+
+          if (refreshResponse.ok) {
+            const refreshData = await refreshResponse.json();
+            const newAccessToken = refreshData.access_token;
+            
+            console.log('Token renovado com sucesso!');
+            await SecureStore.setItemAsync(TOKEN_KEY, newAccessToken);
+            
+            // Notifica o AuthContext sobre o novo token
+            DeviceEventEmitter.emit(AUTH_EVENTS.TOKEN_REFRESHED, newAccessToken);
+            
+            // Refaz a requisição original com o novo token
+            headers['Authorization'] = `Bearer ${newAccessToken}`;
+            response = await fetch(`${API_URL}${endpoint}`, {
+              ...options,
+              headers,
+            });
+          } else {
+            console.warn('Falha ao renovar token com refresh token.');
+            // Se o refresh falhar, limpamos os tokens para forçar logout no app
+            await SecureStore.deleteItemAsync(TOKEN_KEY);
+            await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+            DeviceEventEmitter.emit(AUTH_EVENTS.TOKEN_CLEARED);
+          }
+        } catch (refreshErr) {
+          console.error('Erro durante tentativa de refresh:', refreshErr);
+        }
+      } else {
+        // Se nem tem refresh token, limpa tudo e desloga
+        DeviceEventEmitter.emit(AUTH_EVENTS.TOKEN_CLEARED);
+      }
+    }
 
     const data = await response.json();
 
@@ -37,7 +96,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
 
     return data;
   } catch (error) {
-    console.error('Falha catastrófica no fetch:', error);
+    console.error('Falha no fetch:', error);
     throw error;
   }
 }
@@ -51,7 +110,11 @@ export const authApi = {
     method: 'POST',
     body: JSON.stringify(credentials),
   }),
-  getMe: (token: string) => apiFetch('/auth/me', {}, token),
+  refresh: (refreshToken: string) => apiFetch('/auth/refresh', {
+    method: 'POST',
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  }),
+  getMe: (token?: string | null) => apiFetch('/auth/me', {}, token),
   forgotPassword: (email: string) => apiFetch('/auth/forgot-password', {
     method: 'POST',
     body: JSON.stringify({ email }),
@@ -63,23 +126,31 @@ export const authApi = {
 };
 
 export const userApi = {
-  deleteAccount: (token: string, userId: string) => apiFetch(`/users/${userId}`, {
+  deleteAccount: (userId: string, token?: string | null) => apiFetch(`/users/${userId}`, {
     method: 'DELETE',
   }, token),
 };
 
 export const productsApi = {
-  list: (token: string) => apiFetch('/products', {}, token),
-  create: (token: string, productData: any) => apiFetch('/products', {
+  list: (token?: string | null) => apiFetch('/products', {}, token),
+  create: (productData: any, token?: string | null) => apiFetch('/products', {
     method: 'POST',
     body: JSON.stringify(productData),
   }, token),
-  get: (token: string, id: string) => apiFetch(`/products/${id}`, {}, token),
-  update: (token: string, id: string, productData: any) => apiFetch(`/products/${id}`, {
+  get: (id: string, token?: string | null) => apiFetch(`/products/${id}`, {}, token),
+  update: (id: string, productData: any, token?: string | null) => apiFetch(`/products/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(productData),
   }, token),
-  delete: (token: string, id: string) => apiFetch(`/products/${id}`, {
+  delete: (id: string, token?: string | null) => apiFetch(`/products/${id}`, {
     method: 'DELETE',
   }, token),
+  uploadImage: (productId: string, formData: FormData) => apiFetch(`/products/${productId}/images`, {
+    method: 'POST',
+    body: formData,
+  }),
+  updateImage: (productId: string, imageId: string, formData: FormData) => apiFetch(`/products/${productId}/images/${imageId}`, {
+    method: 'PATCH',
+    body: formData,
+  }),
 };

@@ -22,7 +22,7 @@ export default function RootLayout() {
           <Stack.Screen name="product/[id]" />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal', headerShown: true }} />
         </Stack>
-        <StatusBar style="auto" />
+        <StatusBar style="dark" />
       </ThemeProvider>
     </AuthProvider>
   );

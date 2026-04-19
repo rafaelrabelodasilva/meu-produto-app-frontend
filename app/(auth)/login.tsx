@@ -49,11 +49,11 @@ export default function LoginScreen() {
     try {
       const data = await authApi.login({ email, password });
       
-      if (data && data.access_token) {
-        await signIn(data.access_token);
+      if (data && data.access_token && data.refresh_token) {
+        await signIn(data.access_token, data.refresh_token);
         // O useEffect acima redirecionará para /(tabs)
       } else {
-        throw new Error('Token não recebido do servidor.');
+        throw new Error('Tokens não recebidos do servidor.');
       }
     } catch (error: any) {
       console.error('Erro no login:', error);
