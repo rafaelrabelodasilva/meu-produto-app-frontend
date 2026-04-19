@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
+  TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/auth-context';
@@ -27,6 +28,11 @@ export default function ProfileScreen() {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
+  // States para edição de perfil
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editProfileData, setEditProfileData] = useState({ firstName: '', lastName: '' });
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
   useEffect(() => {
     fetchUserProfile();
   }, [token]);
@@ -39,11 +45,35 @@ export default function ProfileScreen() {
       // Agora buscamos os dados completos do usuário usando o userId.
       const userData = await apiFetch(`/users/${authData.userId}`);
       setUser({ ...authData, ...userData });
+      setEditProfileData({
+        firstName: userData.firstName || '',
+        lastName: userData.lastName || '',
+      });
     } catch (error) {
       console.error('Erro ao buscar perfil:', error);
       showToast('Não foi possível carregar os dados do seu perfil.', 'error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    if (!editProfileData.firstName.trim() || !editProfileData.lastName.trim()) {
+      showToast('Nome e sobrenome são obrigatórios.', 'error');
+      return;
+    }
+
+    setIsSavingProfile(true);
+    try {
+      await userApi.update(user.userId, editProfileData);
+      setUser({ ...user, ...editProfileData });
+      setIsEditingProfile(false);
+      showToast('Perfil atualizado com sucesso!', 'success');
+    } catch (error: any) {
+      console.error('Erro ao atualizar perfil:', error);
+      showToast(error.message || 'Falha ao salvar alterações.', 'error');
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
@@ -108,10 +138,61 @@ export default function ProfileScreen() {
               <Ionicons name="person" size={40} color={colors.secondary} />
             </View>
           </View>
-          <Text style={[styles.userName, { color: colors.text }]}>
-            {user?.firstName || 'Usuário'}
-          </Text>
-          <Text style={[styles.userEmail, { color: colors.subtitle }]}>{user?.email || 'email@exemplo.com'}</Text>
+          
+          {isEditingProfile ? (
+            <View style={styles.editProfileForm}>
+              <TextInput
+                style={[styles.editInput, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}
+                placeholder="Nome"
+                placeholderTextColor={colors.subtitle}
+                value={editProfileData.firstName}
+                onChangeText={(t) => setEditProfileData({ ...editProfileData, firstName: t })}
+              />
+              <TextInput
+                style={[styles.editInput, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}
+                placeholder="Sobrenome"
+                placeholderTextColor={colors.subtitle}
+                value={editProfileData.lastName}
+                onChangeText={(t) => setEditProfileData({ ...editProfileData, lastName: t })}
+              />
+              <View style={styles.editProfileActions}>
+                <TouchableOpacity 
+                  style={[styles.smallButton, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]} 
+                  onPress={() => {
+                    setIsEditingProfile(false);
+                    setEditProfileData({ firstName: user.firstName, lastName: user.lastName });
+                  }}
+                >
+                  <Text style={[styles.smallButtonText, { color: colors.subtitle }]}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.smallButton, { backgroundColor: colors.secondary }]} 
+                  onPress={handleUpdateProfile}
+                  disabled={isSavingProfile}
+                >
+                  {isSavingProfile ? (
+                    <ActivityIndicator size="small" color={colors.white} />
+                  ) : (
+                    <Text style={[styles.smallButtonText, { color: colors.white }]}>Salvar</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            <>
+              <Text style={[styles.userName, { color: colors.text }]}>
+                {user?.firstName}
+              </Text>
+              <Text style={[styles.userEmail, { color: colors.subtitle }]}>{user?.email}</Text>
+              <TouchableOpacity 
+                style={[styles.editBadge, { backgroundColor: isDark ? colors.inputBg : '#EEF2FF' }]}
+                onPress={() => setIsEditingProfile(true)}
+              >
+                <Ionicons name="create-outline" size={14} color={colors.secondary} />
+                <Text style={[styles.editBadgeText, { color: colors.secondary }]}>Editar Perfil</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
 
         <View style={styles.section}>
@@ -246,6 +327,47 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 14,
     fontWeight: '500',
+    marginBottom: 12,
+  },
+  editBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    gap: 4,
+  },
+  editBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  editProfileForm: {
+    width: '100%',
+    gap: 12,
+    marginTop: 8,
+  },
+  editInput: {
+    height: 48,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  editProfileActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  smallButton: {
+    flex: 1,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  smallButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
   },
   section: {
     paddingHorizontal: 24,

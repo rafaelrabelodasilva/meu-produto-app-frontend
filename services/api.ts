@@ -126,6 +126,10 @@ export const authApi = {
 };
 
 export const userApi = {
+  update: (userId: string, data: any) => apiFetch(`/users/${userId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
   deleteAccount: (userId: string, token?: string | null) => apiFetch(`/users/${userId}`, {
     method: 'DELETE',
   }, token),
