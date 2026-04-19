@@ -16,6 +16,7 @@ import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { authApi } from '../../services/api';
 import { useAuth } from '../../context/auth-context';
+import { useToast } from '../../context/toast-context';
 
 const COLORS = {
   primary: '#FFD164', // Amarelo PRD
@@ -30,6 +31,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { token, signIn } = useAuth();
+  const { showToast } = useToast();
   const router = useRouter();
 
   // Redirecionamento automático se o token estiver presente
@@ -41,7 +43,7 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Erro', 'E-mail e senha são obrigatórios.');
+      showToast('E-mail e senha são obrigatórios.', 'error');
       return;
     }
 
@@ -57,7 +59,7 @@ export default function LoginScreen() {
       }
     } catch (error: any) {
       console.error('Erro no login:', error);
-      Alert.alert('Erro no Login', error.message || 'E-mail ou senha inválidos.');
+      showToast(error.message || 'E-mail ou senha inválidos.', 'error');
     } finally {
       setLoading(false);
     }

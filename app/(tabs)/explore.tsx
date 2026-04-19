@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/auth-context';
+import { useToast } from '../../context/toast-context';
+import { ConfirmModal } from '../../components/ui/confirm-modal';
 import { authApi, userApi, apiFetch } from '../../services/api';
 
 const COLORS = {
@@ -26,8 +28,13 @@ const COLORS = {
 
 export default function ProfileScreen() {
   const { token, signOut } = useAuth();
+  const { showToast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  
+  // States para os modais de confirmação
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   useEffect(() => {
     fetchUserProfile();
@@ -43,46 +50,36 @@ export default function ProfileScreen() {
       setUser({ ...authData, ...userData });
     } catch (error) {
       console.error('Erro ao buscar perfil:', error);
-      Alert.alert('Erro', 'Não foi possível carregar os dados do seu perfil.');
+      showToast('Não foi possível carregar os dados do seu perfil.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      'Sair',
-      'Deseja realmente sair da sua conta?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Sair', style: 'destructive', onPress: signOut }
-      ]
-    );
+    setLogoutModalVisible(true);
+  };
+
+  const confirmLogout = () => {
+    setLogoutModalVisible(false);
+    signOut();
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
-      'Excluir Conta',
-      'ATENÇÃO: Esta ação é permanente e todos os seus dados e produtos serão deletados. Deseja continuar?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Excluir Permanentemente', 
-          style: 'destructive', 
-          onPress: async () => {
-            if (!user?.userId) return;
-            try {
-              await userApi.deleteAccount(user.userId);
-              Alert.alert('Conta Excluída', 'Seus dados foram removidos com sucesso.');
-              signOut();
-            } catch (error) {
-              console.error('Erro ao excluir conta:', error);
-              Alert.alert('Erro', 'Não foi possível excluir a conta agora.');
-            }
-          }
-        }
-      ]
-    );
+    setDeleteModalVisible(true);
+  };
+
+  const confirmDeleteAccount = async () => {
+    if (!user?.userId) return;
+    setDeleteModalVisible(false);
+    try {
+      await userApi.deleteAccount(user.userId);
+      showToast('Seus dados foram removidos com sucesso.', 'success');
+      signOut();
+    } catch (error) {
+      console.error('Erro ao excluir conta:', error);
+      showToast('Não foi possível excluir a conta agora.', 'error');
+    }
   };
 
   if (loading) {
@@ -94,54 +91,77 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <Text style={styles.headerTitle}>Ajustes</Text>
-          <Image 
-            source={require('../../assets/kitty_on_computer.png')} 
-            style={styles.kittyHeader}
-            resizeMode="contain"
-          />
-        </View>
-      </View>
-
-      <View style={styles.profileCard}>
-        <View style={styles.avatarContainer}>
-          <Ionicons name="person-circle" size={80} color={COLORS.secondary} />
-        </View>
-        <Text style={styles.userName}>
-          {user?.firstName || 'Usuário'}
-        </Text>
-        <Text style={styles.userEmail}>{user?.email || 'email@exemplo.com'}</Text>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Sessão</Text>
-        <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-          <View style={[styles.iconWrapper, { backgroundColor: '#EEF2FF' }]}>
-            <Ionicons name="log-out-outline" size={22} color={COLORS.secondary} />
+    <View style={{ flex: 1 }}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <View style={styles.headerTop}>
+            <Text style={styles.headerTitle}>Ajustes</Text>
+            <Image 
+              source={require('../../assets/kitty_on_computer.png')} 
+              style={styles.kittyHeader}
+              resizeMode="contain"
+            />
           </View>
-          <Text style={styles.menuText}>Sair da Conta</Text>
-          <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
-        </TouchableOpacity>
-      </View>
+        </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Privacidade</Text>
-        <TouchableOpacity style={styles.menuItem} onPress={handleDeleteAccount}>
-          <View style={[styles.iconWrapper, { backgroundColor: '#FEF2F2' }]}>
-            <Ionicons name="trash-outline" size={22} color={COLORS.error} />
+        <View style={styles.profileCard}>
+          <View style={styles.avatarContainer}>
+            <Ionicons name="person-circle" size={80} color={COLORS.secondary} />
           </View>
-          <Text style={[styles.menuText, { color: COLORS.error }]}>Excluir Conta Permanentemente</Text>
-          <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
-        </TouchableOpacity>
-      </View>
+          <Text style={styles.userName}>
+            {user?.firstName || 'Usuário'}
+          </Text>
+          <Text style={styles.userEmail}>{user?.email || 'email@exemplo.com'}</Text>
+        </View>
 
-      <View style={styles.footer}>
-        <Text style={styles.versionText}>Versão 1.0.0 (Gatinho Organizador)</Text>
-      </View>
-    </ScrollView>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Sessão</Text>
+          <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+            <View style={[styles.iconWrapper, { backgroundColor: '#EEF2FF' }]}>
+              <Ionicons name="log-out-outline" size={22} color={COLORS.secondary} />
+            </View>
+            <Text style={styles.menuText}>Sair da Conta</Text>
+            <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Privacidade</Text>
+          <TouchableOpacity style={styles.menuItem} onPress={handleDeleteAccount}>
+            <View style={[styles.iconWrapper, { backgroundColor: '#FEF2F2' }]}>
+              <Ionicons name="trash-outline" size={22} color={COLORS.error} />
+            </View>
+            <Text style={[styles.menuText, { color: COLORS.error }]}>Excluir Conta Permanentemente</Text>
+            <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.footer}>
+          <Text style={styles.versionText}>Versão 1.0.0 (Gatinho Organizador)</Text>
+        </View>
+      </ScrollView>
+
+      {/* Modais de Confirmação */}
+      <ConfirmModal
+        visible={logoutModalVisible}
+        title="Sair da Conta"
+        message="Deseja realmente sair do Gatinho Organizador?"
+        confirmLabel="Sair"
+        onConfirm={confirmLogout}
+        onCancel={() => setLogoutModalVisible(false)}
+        type="primary"
+      />
+
+      <ConfirmModal
+        visible={deleteModalVisible}
+        title="Excluir Conta"
+        message="Esta ação é permanente. Todos os seus dados e produtos serão deletados. Deseja continuar?"
+        confirmLabel="Excluir"
+        onConfirm={confirmDeleteAccount}
+        onCancel={() => setDeleteModalVisible(false)}
+        type="danger"
+      />
+    </View>
   );
 }
 

@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../context/auth-context';
+import { useToast } from '../../context/toast-context';
 import { productsApi } from '../../services/api';
 
 // Importar Constants para pegar o IP dinâmico
@@ -39,6 +40,7 @@ const COLORS = {
 
 export default function CreateProductScreen() {
   const { token, signOut } = useAuth();
+  const { showToast } = useToast();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -99,7 +101,7 @@ export default function CreateProductScreen() {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     
     if (status !== 'granted') {
-      Alert.alert('Permissão necessária', 'Precisamos de acesso à câmera para tirar fotos do produto.');
+      showToast('Precisamos de acesso à câmera para tirar fotos.', 'error');
       return;
     }
 
@@ -125,7 +127,7 @@ export default function CreateProductScreen() {
 
   const handleSubmit = async () => {
     if (!token) {
-      Alert.alert('Sessão expirada', 'Por favor, faça login novamente.');
+      showToast('Sessão expirada. Por favor, faça login novamente.', 'error');
       signOut();
       return;
     }
@@ -159,15 +161,12 @@ export default function CreateProductScreen() {
         await Promise.all(uploadPromises);
       }
       
-      Alert.alert(
-        'Sucesso!', 
-        'O Gatinho Organizador guardou tudo com perfeição.',
-        [{ text: 'OK', onPress: () => router.replace('/(tabs)') }]
-      );
+      showToast('O Gatinho Organizador guardou tudo com perfeição!', 'success');
+      router.replace('/(tabs)');
     } catch (error: any) {
       console.error('Erro ao salvar:', error);
       const msg = error.message || 'Erro desconhecido';
-      Alert.alert('Erro', `Não foi possível salvar: ${msg}`);
+      showToast(`Não foi possível salvar: ${msg}`, 'error');
     } finally {
       setLoading(false);
     }

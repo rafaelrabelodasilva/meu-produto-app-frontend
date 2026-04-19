@@ -15,6 +15,7 @@ import {
 import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { authApi } from '../../services/api';
+import { useToast } from '../../context/toast-context';
 
 const COLORS = {
   primary: '#FFD164', // Amarelo PRD
@@ -31,11 +32,12 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
   const router = useRouter();
 
   const handleRegister = async () => {
     if (!firstName || !lastName || !email || !password) {
-      Alert.alert('Erro', 'Todos os campos são obrigatórios.');
+      showToast('Todos os campos são obrigatórios.', 'error');
       return;
     }
 
@@ -47,11 +49,10 @@ export default function RegisterScreen() {
         email,
         password,
       });
-      Alert.alert('Sucesso', 'Conta criada com sucesso! Agora você pode entrar.', [
-        { text: 'OK', onPress: () => router.push('/(auth)/login') },
-      ]);
+      showToast('Conta criada com sucesso! Agora você pode entrar.', 'success');
+      router.push('/(auth)/login');
     } catch (error: any) {
-      Alert.alert('Erro no Cadastro', error.message || 'Ocorreu um erro ao criar sua conta.');
+      showToast(error.message || 'Ocorreu um erro ao criar sua conta.', 'error');
     } finally {
       setLoading(false);
     }

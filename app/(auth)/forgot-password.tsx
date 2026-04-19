@@ -14,6 +14,7 @@ import {
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { authApi } from '../../services/api';
+import { useToast } from '../../context/toast-context';
 
 const COLORS = {
   primary: '#FFD164',
@@ -34,10 +35,11 @@ export default function ForgotPasswordScreen() {
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToast();
 
   const handleSendCode = async () => {
     if (!email) {
-      Alert.alert('E-mail necessário', 'Por favor, informe seu e-mail para receber o código.');
+      showToast('Por favor, informe seu e-mail para receber o código.', 'error');
       return;
     }
 
@@ -45,9 +47,9 @@ export default function ForgotPasswordScreen() {
     try {
       await authApi.forgotPassword(email);
       setStep(2);
-      Alert.alert('Código Enviado', 'O Gatinho Organizador enviou um código para seu e-mail (verifique o console do backend).');
+      showToast('Código enviado! Verifique seu e-mail.', 'success');
     } catch (error: any) {
-      Alert.alert('Erro', error.message || 'Não foi possível enviar o código agora.');
+      showToast(error.message || 'Não foi possível enviar o código agora.', 'error');
     } finally {
       setLoading(false);
     }
@@ -55,18 +57,17 @@ export default function ForgotPasswordScreen() {
 
   const handleResetPassword = async () => {
     if (!code || !newPassword) {
-      Alert.alert('Campos obrigatórios', 'Por favor, preencha o código e a nova senha.');
+      showToast('Por favor, preencha o código e a nova senha.', 'error');
       return;
     }
 
     setLoading(true);
     try {
       await authApi.resetPassword({ email, code, newPassword });
-      Alert.alert('Sucesso', 'Sua senha foi atualizada! Agora você pode entrar.', [
-        { text: 'Ir para Login', onPress: () => router.replace('/(auth)/login') }
-      ]);
+      showToast('Sua senha foi atualizada! Agora você pode entrar.', 'success');
+      router.replace('/(auth)/login');
     } catch (error: any) {
-      Alert.alert('Erro', error.message || 'Código inválido ou expirado.');
+      showToast(error.message || 'Código inválido ou expirado.', 'error');
     } finally {
       setLoading(false);
     }

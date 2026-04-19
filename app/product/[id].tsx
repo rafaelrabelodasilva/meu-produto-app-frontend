@@ -17,6 +17,8 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../context/auth-context';
+import { useToast } from '../../context/toast-context';
+import { ConfirmModal } from '../../components/ui/confirm-modal';
 import { productsApi } from '../../services/api';
 
 // Importar Constants para pegar o IP dinâmico
@@ -41,6 +43,7 @@ const COLORS = {
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
   const { token } = useAuth();
+  const { showToast } = useToast();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -48,6 +51,9 @@ export default function ProductDetailScreen() {
   const [editData, setEditData] = useState<any>(null);
   const [newImageUri, setNewImageUri] = useState<string | null>(null);
   const [newLabelUri, setNewLabelUri] = useState<string | null>(null);
+  
+  // State para modal de exclusão
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   // Mapear imagens por tipo para garantir consistência visual
   const productImage = product?.images?.find((img: any) => img.type === 'PRODUCT');
@@ -82,7 +88,7 @@ export default function ProductDetailScreen() {
       }
     } catch (error) {
       console.error('Erro ao buscar produto:', error);
-      Alert.alert('Erro', 'Não foi possível carregar os detalhes do item.');
+      showToast('Não foi possível carregar os detalhes do item.', 'error');
       router.back();
     } finally {
       setLoading(false);
@@ -92,7 +98,7 @@ export default function ProductDetailScreen() {
   const pickImage = async (type: 'product' | 'label') => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permissão necessária', 'Precisamos de acesso à câmera.');
+      showToast('Precisamos de acesso à câmera.', 'error');
       return;
     }
 
@@ -150,10 +156,10 @@ export default function ProductDetailScreen() {
       setIsEditing(false);
       setNewImageUri(null);
       setNewLabelUri(null);
-      Alert.alert('Sucesso', 'Item atualizado pelo Gatinho Organizador!');
+      showToast('Item atualizado pelo Gatinho Organizador!', 'success');
     } catch (error) {
       console.error('Erro ao atualizar:', error);
-      Alert.alert('Erro', 'Falha ao salvar as alterações.');
+      showToast('Falha ao salvar as alterações.', 'error');
     } finally {
       setSaving(false);
     }
@@ -192,27 +198,20 @@ export default function ProductDetailScreen() {
   };
 
   const handleDelete = () => {
-    Alert.alert(
-      'Remover Item',
-      'Tem certeza que deseja remover este item? Esta ação não pode ser desfeita.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Sim, Remover', 
-          style: 'destructive',
-          onPress: async () => {
-            if (!id) return;
-            try {
-              await productsApi.delete(id as string);
-              router.replace('/(tabs)');
-            } catch (error) {
-              console.error('Erro ao deletar:', error);
-              Alert.alert('Erro', 'Não foi possível remover o item.');
-            }
-          }
-        }
-      ]
-    );
+    setDeleteModalVisible(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!id) return;
+    setDeleteModalVisible(false);
+    try {
+      await productsApi.delete(id as string);
+      showToast('O item foi removido do seu lar.', 'success');
+      router.replace('/(tabs)');
+    } catch (error) {
+      console.error('Erro ao deletar:', error);
+      showToast('Não foi possível remover o item.', 'error');
+    }
   };
 
   if (loading) {
@@ -452,6 +451,17 @@ export default function ProductDetailScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* Modal de Confirmação para Deletar Produto */}
+      <ConfirmModal
+        visible={deleteModalVisible}
+        title="Remover Item"
+        message="Tem certeza que deseja remover este item? Esta ação não pode ser desfeita e o Gatinho vai ficar triste."
+        confirmLabel="Sim, Remover"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteModalVisible(false)}
+        type="danger"
+      />
     </KeyboardAvoidingView>
   );
 }
