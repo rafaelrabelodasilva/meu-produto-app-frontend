@@ -1,0 +1,691 @@
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Alert,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions,
+} from 'react-native';
+import { useLocalSearchParams, router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import { useAuth } from '../../context/auth-context';
+import { productsApi } from '../../services/api';
+
+// Importar Constants para pegar o IP dinâmico
+import Constants from 'expo-constants';
+const debuggerHost = Constants.expoConfig?.hostUri;
+const localhost = debuggerHost?.split(':').shift() || '192.168.0.15';
+const BASE_URL = `http://${localhost}:3000`;
+
+const COLORS = {
+  primary: '#FFD164',
+  secondary: '#0042cf',
+  background: '#F8FAFC',
+  card: '#FFFFFF',
+  text: '#11181C',
+  subtitle: '#64748B',
+  inputBg: '#F1F5F9',
+  white: '#FFFFFF',
+  error: '#EF4444',
+  success: '#10B981',
+};
+
+export default function ProductDetailScreen() {
+  const { id } = useLocalSearchParams();
+  const { token } = useAuth();
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState<any>(null);
+  const [newImageUri, setNewImageUri] = useState<string | null>(null);
+  const [newLabelUri, setNewLabelUri] = useState<string | null>(null);
+
+  // Mapear imagens por tipo para garantir consistência visual
+  const productImage = product?.images?.find((img: any) => img.type === 'PRODUCT');
+  const labelImage = product?.images?.find((img: any) => img.type === 'LABEL');
+
+  const [measures, setMeasures] = useState({
+    height: '',
+    width: '',
+    depth: '',
+  });
+
+  useEffect(() => {
+    fetchProduct();
+  }, [id, token]);
+
+  const fetchProduct = async () => {
+    if (!token || !id) return;
+    try {
+      const data = await productsApi.get(token, id as string);
+      setProduct(data);
+      setEditData(data);
+
+      if (data.size) {
+        const parts = data.size.replace(' cm', '').split(' x ');
+        if (parts.length === 3) {
+          setMeasures({
+            height: parts[0],
+            width: parts[1],
+            depth: parts[2],
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar produto:', error);
+      Alert.alert('Erro', 'Não foi possível carregar os detalhes do item.');
+      router.back();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const pickImage = async (type: 'product' | 'label') => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permissão necessária', 'Precisamos de acesso à câmera.');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (!result.canceled) {
+      if (type === 'product') setNewImageUri(result.assets[0].uri);
+      else setNewLabelUri(result.assets[0].uri);
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!token || !id) return;
+    setSaving(true);
+    try {
+      const updatedSize = `${measures.height || '0'} x ${measures.width || '0'} x ${measures.depth || '0'} cm`;
+      
+      const payload = {
+        name: editData.name,
+        brand: editData.brand,
+        model: editData.model,
+        price: editData.price ? parseFloat(editData.price.toString()) : 0,
+        size: updatedSize,
+        notes: editData.notes,
+        categoryId: editData.categoryId,
+      };
+
+      // 1. Atualizar textos
+      await productsApi.update(token, id as string, payload);
+
+      // 2. Atualizar Foto do Produto (PRODUCT)
+      if (newImageUri) {
+        if (productImage) {
+          await replaceImage(productImage.id, newImageUri, 'PRODUCT');
+        } else {
+          await uploadNewImage(newImageUri, 'PRODUCT');
+        }
+      }
+
+      // 3. Atualizar Foto da Etiqueta (LABEL)
+      if (newLabelUri) {
+        if (labelImage) {
+          await replaceImage(labelImage.id, newLabelUri, 'LABEL');
+        } else {
+          await uploadNewImage(newLabelUri, 'LABEL');
+        }
+      }
+
+      await fetchProduct();
+      setIsEditing(false);
+      setNewImageUri(null);
+      setNewLabelUri(null);
+      Alert.alert('Sucesso', 'Item atualizado pelo Gatinho Organizador!');
+    } catch (error) {
+      console.error('Erro ao atualizar:', error);
+      Alert.alert('Erro', 'Falha ao salvar as alterações.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const replaceImage = async (imageId: string, uri: string, type: string) => {
+    const formData = new FormData();
+    const uriParts = uri.split('.');
+    const fileType = uriParts[uriParts.length - 1];
+
+    formData.append('file', {
+      uri,
+      name: `photo.${fileType}`,
+      type: `image/${fileType}`,
+    } as any);
+    
+    formData.append('type', type);
+
+    return fetch(`${BASE_URL}/products/${id}/images/${imageId}`, {
+      method: 'PATCH',
+      body: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+  };
+
+  const uploadNewImage = async (uri: string, type: string) => {
+    const formData = new FormData();
+    const uriParts = uri.split('.');
+    const fileType = uriParts[uriParts.length - 1];
+
+    formData.append('files', {
+      uri,
+      name: `photo.${fileType}`,
+      type: `image/${fileType}`,
+    } as any);
+
+    formData.append('type', type);
+
+    return fetch(`${BASE_URL}/products/${id}/images`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Remover Item',
+      'Tem certeza que deseja remover este item? Esta ação não pode ser desfeita.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { 
+          text: 'Sim, Remover', 
+          style: 'destructive',
+          onPress: async () => {
+            if (!token || !id) return;
+            try {
+              await productsApi.delete(token, id as string);
+              router.replace('/(tabs)');
+            } catch (error) {
+              console.error('Erro ao deletar:', error);
+              Alert.alert('Erro', 'Não foi possível remover o item.');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={COLORS.secondary} />
+      </View>
+    );
+  }
+
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>{isEditing ? 'Editar Item' : 'Detalhes'}</Text>
+          <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
+            <Ionicons name="trash-outline" size={24} color={COLORS.error} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.imageGallery}>
+          <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
+            {/* Slide Foto do Produto */}
+            <View style={styles.imageSlide}>
+              {(newImageUri || productImage) ? (
+                <Image 
+                  source={{ uri: newImageUri || `${BASE_URL}/uploads/${productImage?.url}?t=${new Date().getTime()}` }} 
+                  style={styles.mainImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.placeholderImage}>
+                  <Ionicons name="cube-outline" size={80} color="#CBD5E1" />
+                  <Text style={styles.placeholderText}>Foto do Produto</Text>
+                </View>
+              )}
+              {isEditing && (
+                <TouchableOpacity style={styles.changeImageButton} onPress={() => pickImage('product')}>
+                  <Ionicons name="camera" size={20} color={COLORS.white} />
+                  <Text style={styles.changeImageText}>Trocar Produto</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Slide Foto da Etiqueta */}
+            <View style={styles.imageSlide}>
+              {(newLabelUri || labelImage) ? (
+                <Image 
+                  source={{ uri: newLabelUri || `${BASE_URL}/uploads/${labelImage?.url}?t=${new Date().getTime()}` }} 
+                  style={styles.mainImage}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.placeholderImage}>
+                  <Ionicons name="document-text-outline" size={80} color="#CBD5E1" />
+                  <Text style={styles.placeholderText}>Foto da Etiqueta / Manual</Text>
+                </View>
+              )}
+              {isEditing && (
+                <TouchableOpacity style={styles.changeImageButton} onPress={() => pickImage('label')}>
+                  <Ionicons name="camera" size={20} color={COLORS.white} />
+                  <Text style={styles.changeImageText}>Trocar Etiqueta</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </ScrollView>
+          <View style={styles.galleryBadge}>
+            <Ionicons name="swap-horizontal" size={12} color={COLORS.white} />
+            <Text style={styles.galleryBadgeText}>Deslize para ver a etiqueta</Text>
+          </View>
+        </View>
+
+        <View style={styles.content}>
+          <View style={styles.card}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Nome do Produto</Text>
+              {isEditing ? (
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="pricetag-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    value={editData.name}
+                    onChangeText={(t) => setEditData({ ...editData, name: t })}
+                  />
+                </View>
+              ) : (
+                <Text style={styles.value}>{product.name}</Text>
+              )}
+            </View>
+
+            <View style={styles.row}>
+              <View style={[styles.inputGroup, { flex: 1 }]}>
+                <Text style={styles.label}>Marca</Text>
+                {isEditing ? (
+                  <View style={styles.inputWrapper}>
+                    <Ionicons name="business-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      value={editData.brand}
+                      onChangeText={(t) => setEditData({ ...editData, brand: t })}
+                    />
+                  </View>
+                ) : (
+                  <Text style={styles.value}>{product.brand || '---'}</Text>
+                )}
+              </View>
+              <View style={[styles.inputGroup, { flex: 1 }]}>
+                <Text style={styles.label}>Modelo</Text>
+                {isEditing ? (
+                  <View style={styles.inputWrapper}>
+                    <Ionicons name="barcode-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      value={editData.model}
+                      onChangeText={(t) => setEditData({ ...editData, model: t })}
+                    />
+                  </View>
+                ) : (
+                  <Text style={styles.value}>{product.model || '---'}</Text>
+                )}
+              </View>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Categoria / Notas</Text>
+              {isEditing ? (
+                <View style={styles.inputWrapper}>
+                  <Ionicons name="apps-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.input}
+                    value={editData.notes}
+                    onChangeText={(t) => setEditData({ ...editData, notes: t })}
+                  />
+                </View>
+              ) : (
+                <Text style={styles.value}>{product.notes || '---'}</Text>
+              )}
+            </View>
+          </View>
+
+          <View style={[styles.card, { marginTop: 16 }]}>
+            <Text style={styles.sectionTitle}>Dimensões Técnicas</Text>
+            {isEditing ? (
+              <View style={styles.measuresForm}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Altura (cm)</Text>
+                  <View style={styles.inputWrapper}>
+                    <Ionicons name="resize-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.input}
+                      value={measures.height}
+                      onChangeText={(t) => setMeasures({ ...measures, height: t })}
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Largura (cm)</Text>
+                  <View style={styles.inputWrapper}>
+                    <View style={{ transform: [{ rotate: '90deg' }] }}>
+                      <Ionicons name="resize-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                    </View>
+                    <TextInput
+                      style={styles.input}
+                      value={measures.width}
+                      onChangeText={(t) => setMeasures({ ...measures, width: t })}
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Profundidade (cm)</Text>
+                  <View style={styles.inputWrapper}>
+                    <View style={{ transform: [{ rotate: '45deg' }] }}>
+                      <Ionicons name="resize-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                    </View>
+                    <TextInput
+                      style={styles.input}
+                      value={measures.depth}
+                      onChangeText={(t) => setMeasures({ ...measures, depth: t })}
+                      keyboardType="decimal-pad"
+                    />
+                  </View>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Tamanho / Medidas</Text>
+                <Text style={styles.value}>{product.size || '---'}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.footer}>
+          {isEditing ? (
+            <View style={styles.editActions}>
+              <TouchableOpacity 
+                style={styles.cancelButton} 
+                onPress={() => {
+                  setIsEditing(false);
+                  setEditData(product);
+                  setNewImageUri(null);
+                  setNewLabelUri(null);
+                }}
+              >
+                <Text style={styles.cancelButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.saveButton} 
+                onPress={handleUpdate}
+                disabled={saving}
+              >
+                {saving ? (
+                  <ActivityIndicator color={COLORS.white} />
+                ) : (
+                  <>
+                    <Text style={styles.saveButtonText}>Salvar Alterações</Text>
+                    <Ionicons name="checkmark" size={20} color={COLORS.white} />
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity style={styles.editModeButton} onPress={() => setIsEditing(true)}>
+              <Text style={styles.editModeButtonText}>Editar Item</Text>
+              <Ionicons name="create-outline" size={20} color={COLORS.white} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scrollContent: {
+    paddingBottom: 40,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 20,
+    backgroundColor: COLORS.white,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: COLORS.text,
+  },
+  backButton: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: '#F1F5F9',
+  },
+  deleteButton: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: '#FEF2F2',
+  },
+  imageGallery: {
+    width: '100%',
+    height: 350,
+    backgroundColor: '#F1F5F9',
+  },
+  imageSlide: {
+    width: Dimensions.get('window').width,
+    height: 350,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mainImage: {
+    width: '100%',
+    height: '100%',
+  },
+  placeholderImage: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 12,
+  },
+  placeholderText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.subtitle,
+  },
+  galleryBadge: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  galleryBadgeText: {
+    color: COLORS.white,
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  content: {
+    padding: 24,
+  },
+  measuresForm: {
+    gap: 16,
+  },
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: COLORS.secondary,
+    marginBottom: 16,
+  },
+  inputGroup: {
+    marginBottom: 16,
+    gap: 8,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.subtitle,
+    textTransform: 'uppercase',
+    marginLeft: 4,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    height: 56,
+    borderWidth: 1,
+    borderColor: COLORS.secondary,
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  value: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.text,
+    backgroundColor: '#F8FAFC',
+    padding: 12,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  input: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  footer: {
+    paddingHorizontal: 24,
+    marginTop: 8,
+  },
+  editModeButton: {
+    backgroundColor: COLORS.secondary,
+    height: 60,
+    borderRadius: 30,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    shadowColor: COLORS.secondary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  editModeButtonText: {
+    color: COLORS.white,
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  editActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  cancelButton: {
+    flex: 1,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    color: COLORS.subtitle,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  changeImageButton: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    gap: 8,
+  },
+  changeImageText: {
+    color: COLORS.white,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  saveButton: {
+    flex: 2,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: COLORS.success,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+  },
+  saveButtonText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '800',
+  },
+});
