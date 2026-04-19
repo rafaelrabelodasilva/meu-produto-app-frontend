@@ -8,7 +8,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   ActivityIndicator,
   Image,
 } from 'react-native';
@@ -16,15 +15,7 @@ import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { authApi } from '../../services/api';
 import { useToast } from '../../context/toast-context';
-
-const COLORS = {
-  primary: '#FFD164', // Amarelo PRD
-  secondary: '#0042cf', // Azul PRD
-  text: '#11181C',
-  white: '#FFF',
-  error: '#FF4C4C',
-  inputBg: '#F5F7FA',
-};
+import { useTheme } from '../../context/theme-context';
 
 export default function RegisterScreen() {
   const [firstName, setFirstName] = useState('');
@@ -33,6 +24,7 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const { colors, isDark } = useTheme();
   const router = useRouter();
 
   const handleRegister = async () => {
@@ -61,7 +53,7 @@ export default function RegisterScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
@@ -71,91 +63,91 @@ export default function RegisterScreen() {
             resizeMode="contain"
             accessibilityLabel="Logo Gatinho Organizador"
           />
-          <Text style={styles.title}>Criar Conta</Text>
-          <Text style={styles.subtitle}>O Gatinho Organizador está pronto para ajudar!</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Criar Conta</Text>
+          <Text style={[styles.subtitle, { color: colors.subtitle }]}>O Gatinho Organizador está pronto para ajudar!</Text>
         </View>
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Primeiro Nome</Text>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="person-outline" size={20} color={COLORS.secondary} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>Primeiro Nome</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
+              <Ionicons name="person-outline" size={20} color={colors.secondary} style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Ex: João"
                 value={firstName}
                 onChangeText={setFirstName}
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.subtitle}
               />
             </View>
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Último Nome</Text>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="person-outline" size={20} color={COLORS.secondary} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>Último Nome</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
+              <Ionicons name="person-outline" size={20} color={colors.secondary} style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Ex: Silva"
                 value={lastName}
                 onChangeText={setLastName}
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.subtitle}
               />
             </View>
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>E-mail</Text>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="mail-outline" size={20} color={COLORS.secondary} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>E-mail</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
+              <Ionicons name="mail-outline" size={20} color={colors.secondary} style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="seu-email@exemplo.com"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.subtitle}
               />
             </View>
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Senha</Text>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="lock-closed-outline" size={20} color={COLORS.secondary} style={styles.inputIcon} />
+            <Text style={[styles.label, { color: colors.text }]}>Senha</Text>
+            <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
+              <Ionicons name="lock-closed-outline" size={20} color={colors.secondary} style={styles.inputIcon} />
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: colors.text }]}
                 placeholder="Mínimo 8 caracteres"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
-                placeholderTextColor="#999"
+                placeholderTextColor={colors.subtitle}
               />
             </View>
-            <Text style={styles.hint}>
+            <Text style={[styles.hint, { color: colors.subtitle }]}>
               Deve conter letra maiúscula, minúscula, número e símbolo.
             </Text>
           </View>
 
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, { backgroundColor: colors.secondary, shadowColor: colors.secondary }]}
             onPress={handleRegister}
             disabled={loading}
             activeOpacity={0.8}
           >
             {loading ? (
-              <ActivityIndicator color={COLORS.white} />
+              <ActivityIndicator color={colors.white} />
             ) : (
-              <Text style={styles.buttonText}>Cadastrar</Text>
+              <Text style={[styles.buttonText, { color: colors.white }]}>Cadastrar</Text>
             )}
           </TouchableOpacity>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Já tem uma conta?</Text>
+            <Text style={[styles.footerText, { color: colors.subtitle }]}>Já tem uma conta?</Text>
             <Link href="/(auth)/login" asChild>
               <TouchableOpacity>
-                <Text style={styles.linkText}>Entrar</Text>
+                <Text style={[styles.linkText, { color: colors.secondary }]}>Entrar</Text>
               </TouchableOpacity>
             </Link>
           </View>
@@ -168,7 +160,6 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.white,
   },
   scrollContent: {
     flexGrow: 1,
@@ -187,12 +178,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: COLORS.secondary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#64748B',
     textAlign: 'center',
     lineHeight: 22,
     paddingHorizontal: 20,
@@ -206,7 +195,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.text,
     marginBottom: 8,
     marginLeft: 4,
   },
@@ -214,9 +202,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: '#E2E8F0',
     borderRadius: 16,
-    backgroundColor: COLORS.inputBg,
     paddingHorizontal: 16,
     height: 58,
   },
@@ -226,31 +212,25 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: COLORS.text,
     fontWeight: '500',
   },
   hint: {
     fontSize: 12,
-    color: '#94A3B8',
     marginTop: 6,
     marginLeft: 4,
   },
   button: {
-    backgroundColor: COLORS.secondary,
     height: 60,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 12,
-    // Soft-Tech Shadow
-    shadowColor: COLORS.secondary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.25,
     shadowRadius: 12,
     elevation: 8,
   },
   buttonText: {
-    color: COLORS.white,
     fontSize: 18,
     fontWeight: '800',
     letterSpacing: 0.5,
@@ -263,12 +243,10 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   footerText: {
-    color: '#64748B',
     fontSize: 15,
     fontWeight: '500',
   },
   linkText: {
-    color: COLORS.secondary,
     fontSize: 15,
     fontWeight: '800',
   },

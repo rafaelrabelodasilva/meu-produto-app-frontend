@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTheme } from '../../context/theme-context';
 
 interface ConfirmModalProps {
   visible: boolean;
@@ -23,6 +24,7 @@ export function ConfirmModal({
   onCancel,
   type = 'primary'
 }: ConfirmModalProps) {
+  const { colors, isDark } = useTheme();
   const isDanger = type === 'danger';
 
   return (
@@ -33,28 +35,28 @@ export function ConfirmModal({
       onRequestClose={onCancel}
     >
       <Pressable style={styles.overlay} onPress={onCancel}>
-        <Pressable style={styles.modalContainer}>
-          <View style={[styles.iconContainer, { backgroundColor: isDanger ? '#FEF2F2' : '#EFF6FF' }]}>
+        <Pressable style={[styles.modalContainer, { backgroundColor: colors.card }]}>
+          <View style={[styles.iconContainer, { backgroundColor: isDanger ? (isDark ? '#450a0a' : '#FEF2F2') : (isDark ? '#172554' : '#EFF6FF') }]}>
             <Ionicons 
               name={isDanger ? 'trash-outline' : 'help-circle-outline'} 
               size={32} 
-              color={isDanger ? '#EF4444' : '#0042cf'} 
+              color={isDanger ? colors.error : colors.secondary} 
             />
           </View>
 
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.message}>{message}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
+          <Text style={[styles.message, { color: colors.subtitle }]}>{message}</Text>
 
           <View style={styles.footer}>
-            <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
-              <Text style={styles.cancelButtonText}>{cancelLabel}</Text>
+            <TouchableOpacity style={[styles.cancelButton, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]} onPress={onCancel}>
+              <Text style={[styles.cancelButtonText, { color: colors.subtitle }]}>{cancelLabel}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={[styles.confirmButton, { backgroundColor: isDanger ? '#EF4444' : '#0042cf' }]} 
+              style={[styles.confirmButton, { backgroundColor: isDanger ? colors.error : colors.secondary }]} 
               onPress={onConfirm}
             >
-              <Text style={styles.confirmButtonText}>{confirmLabel}</Text>
+              <Text style={[styles.confirmButtonText, { color: colors.white }]}>{confirmLabel}</Text>
             </TouchableOpacity>
           </View>
         </Pressable>

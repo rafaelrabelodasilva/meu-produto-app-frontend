@@ -12,6 +12,7 @@ import {
   TextInput,
 } from 'react-native';
 import { useAuth } from '../../context/auth-context';
+import { useTheme } from '../../context/theme-context';
 import { productsApi } from '../../services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, router } from 'expo-router';
@@ -26,18 +27,9 @@ const debuggerHost = Constants.expoConfig?.hostUri;
 const localhost = debuggerHost?.split(':').shift() || '192.168.0.15';
 const BASE_URL = `http://${localhost}:3000`;
 
-const COLORS = {
-  primary: '#FFD164',
-  secondary: '#0042cf',
-  background: '#F8FAFC',
-  card: '#FFFFFF',
-  text: '#11181C',
-  subtitle: '#64748B',
-  inputBg: '#F1F5F9',
-};
-
 export default function DashboardScreen() {
   const { token, signOut } = useAuth();
+  const { colors, isDark } = useTheme();
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchScope, setSearchScope] = useState('ALL'); // NEW: Search scope state
@@ -104,11 +96,11 @@ export default function DashboardScreen() {
 
   const renderProduct = ({ item }: { item: any }) => (
     <TouchableOpacity 
-      style={styles.card} 
+      style={[styles.card, { backgroundColor: colors.card }]} 
       activeOpacity={0.7}
       onPress={() => router.push(`/product/${item.id}`)}
     >
-      <View style={styles.imageContainer}>
+      <View style={[styles.imageContainer, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}>
         {item.images && item.images.length > 0 ? (
           <Image 
             source={{ uri: `${BASE_URL}/uploads/${item.images[0].url}?t=${new Date().getTime()}` }} 
@@ -116,16 +108,16 @@ export default function DashboardScreen() {
           />
         ) : (
           <View style={styles.placeholderImage}>
-            <Ionicons name="cube-outline" size={40} color="#CBD5E1" />
+            <Ionicons name="cube-outline" size={40} color={isDark ? colors.subtitle : '#CBD5E1'} />
           </View>
         )}
       </View>
       <View style={styles.cardInfo}>
-        <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
-        <Text style={styles.productBrand} numberOfLines={1}>{item.brand || 'Sem marca'}</Text>
+        <Text style={[styles.productName, { color: colors.text }]} numberOfLines={1}>{item.name}</Text>
+        <Text style={[styles.productBrand, { color: colors.subtitle }]} numberOfLines={1}>{item.brand || 'Sem marca'}</Text>
         <View style={styles.measurementsContainer}>
-          <Ionicons name="resize-outline" size={14} color={COLORS.secondary} />
-          <Text style={styles.measurementsText}>
+          <Ionicons name="resize-outline" size={14} color={colors.secondary} />
+          <Text style={[styles.measurementsText, { color: colors.secondary }]}>
             {item.size || 'Dimensões não cadastradas'}
           </Text>
         </View>
@@ -140,20 +132,20 @@ export default function DashboardScreen() {
         style={styles.emptyImage}
         resizeMode="contain"
       />
-      <Text style={styles.emptyTitle}>
+      <Text style={[styles.emptyTitle, { color: colors.secondary }]}>
         {searchQuery ? 'Nenhum item encontrado' : 'Sua casa está vazia!'}
       </Text>
-      <Text style={styles.emptySubtitle}>
+      <Text style={[styles.emptySubtitle, { color: colors.subtitle }]}>
         {searchQuery 
           ? `O gatinho não achou nada parecido com "${searchQuery}" neste filtro.`
           : 'O Gatinho Organizador está ansioso para catalogar seu primeiro item.'}
       </Text>
       {!searchQuery && (
         <TouchableOpacity 
-          style={styles.addButton} 
+          style={[styles.addButton, { backgroundColor: colors.secondary, shadowColor: colors.secondary }]} 
           onPress={() => router.push('/create')}
         >
-          <Text style={styles.addButtonText}>Cadastrar Item</Text>
+          <Text style={[styles.addButtonText, { color: colors.white }]}>Cadastrar Item</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -161,34 +153,34 @@ export default function DashboardScreen() {
 
   if (loading && !refreshing) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={COLORS.secondary} />
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.secondary} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: isDark ? colors.inputBg : '#F1F5F9' }]}>
         <View style={styles.headerTop}>
           <View>
-            <Text style={styles.headerTitle}>Meu Inventário</Text>
-            <Text style={styles.headerSubtitle}>{products.length} itens catalogados</Text>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>Meu Inventário</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.subtitle }]}>{products.length} itens catalogados</Text>
           </View>
         </View>
 
-        <View style={styles.searchWrapper}>
-          <Ionicons name="search-outline" size={20} color={COLORS.subtitle} style={styles.searchIcon} />
+        <View style={[styles.searchWrapper, { backgroundColor: colors.inputBg }]}>
+          <Ionicons name="search-outline" size={20} color={colors.subtitle} style={styles.searchIcon} />
           <TextInput
-            style={styles.searchInput}
+            style={[styles.searchInput, { color: colors.text }]}
             placeholder={`Buscar por ${SEARCH_SCOPES.find(s => s.id === searchScope)?.label.toLowerCase()}...`}
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={colors.subtitle}
           />
           {searchQuery !== '' && (
             <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={20} color="#CBD5E1" />
+              <Ionicons name="close-circle" size={20} color={colors.subtitle} />
             </TouchableOpacity>
           )}
         </View>
@@ -204,18 +196,20 @@ export default function DashboardScreen() {
                 onPress={() => setSearchScope(item.id)}
                 style={[
                   styles.scopeChip,
-                  searchScope === item.id && styles.scopeChipActive
+                  { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: isDark ? colors.border : '#E2E8F0' },
+                  searchScope === item.id && [styles.scopeChipActive, { backgroundColor: colors.secondary, borderColor: colors.secondary }]
                 ]}
               >
                 <Ionicons 
                   name={item.icon as any} 
                   size={16} 
-                  color={searchScope === item.id ? COLORS.card : COLORS.secondary} 
+                  color={searchScope === item.id ? colors.white : colors.secondary} 
                   style={{ marginRight: 6 }}
                 />
                 <Text
                   style={[
                     styles.scopeLabel,
+                    { color: colors.subtitle },
                     searchScope === item.id && styles.scopeLabelActive
                   ]}
                 >
@@ -237,7 +231,7 @@ export default function DashboardScreen() {
         columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
         ListEmptyComponent={renderEmpty}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.secondary]} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.secondary]} tintColor={colors.secondary} />
         }
         showsVerticalScrollIndicator={false}
       />
@@ -248,21 +242,17 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   centerContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
   },
   header: {
     paddingHorizontal: 24,
     paddingTop: 60,
     paddingBottom: 20,
-    backgroundColor: COLORS.white,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
   },
   headerTop: {
     flexDirection: 'row',
@@ -273,22 +263,14 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: COLORS.text,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: COLORS.subtitle,
     fontWeight: '500',
-  },
-  logoutButton: {
-    padding: 8,
-    borderRadius: 12,
-    backgroundColor: '#F1F5F9',
   },
   searchWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.inputBg,
     borderRadius: 16,
     paddingHorizontal: 16,
     height: 50,
@@ -299,7 +281,6 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 15,
-    color: COLORS.text,
     fontWeight: '500',
   },
   listContent: {
@@ -313,7 +294,6 @@ const styles = StyleSheet.create({
   },
   card: {
     width: cardWidth,
-    backgroundColor: COLORS.card,
     borderRadius: 20,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -325,7 +305,6 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: '100%',
     height: cardWidth,
-    backgroundColor: '#F1F5F9',
   },
   productImage: {
     width: '100%',
@@ -343,12 +322,10 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 16,
     fontWeight: '700',
-    color: COLORS.text,
     marginBottom: 2,
   },
   productBrand: {
     fontSize: 12,
-    color: COLORS.subtitle,
     fontWeight: '500',
     marginBottom: 8,
   },
@@ -359,7 +336,6 @@ const styles = StyleSheet.create({
   },
   measurementsText: {
     fontSize: 12,
-    color: COLORS.secondary,
     fontWeight: '700',
   },
   emptyContainer: {
@@ -376,30 +352,25 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: COLORS.secondary,
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 15,
-    color: COLORS.subtitle,
     textAlign: 'center',
     paddingHorizontal: 40,
     lineHeight: 22,
     marginBottom: 32,
   },
   addButton: {
-    backgroundColor: COLORS.secondary,
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 30,
-    shadowColor: COLORS.secondary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 6,
   },
   addButtonText: {
-    color: COLORS.white,
     fontSize: 16,
     fontWeight: '800',
   },
@@ -415,21 +386,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#F1F5F9',
     marginRight: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
   },
-  scopeChipActive: {
-    backgroundColor: COLORS.secondary,
-    borderColor: COLORS.secondary,
-  },
+  scopeChipActive: {},
   scopeLabel: {
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.subtitle,
   },
   scopeLabelActive: {
-    color: COLORS.card,
+    color: '#FFFFFF',
   },
 });

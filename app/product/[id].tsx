@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../context/auth-context';
 import { useToast } from '../../context/toast-context';
+import { useTheme } from '../../context/theme-context';
 import { ConfirmModal } from '../../components/ui/confirm-modal';
 import { productsApi } from '../../services/api';
 
@@ -27,23 +28,11 @@ const debuggerHost = Constants.expoConfig?.hostUri;
 const localhost = debuggerHost?.split(':').shift() || '192.168.0.15';
 const BASE_URL = `http://${localhost}:3000`;
 
-const COLORS = {
-  primary: '#FFD164',
-  secondary: '#0042cf',
-  background: '#F8FAFC',
-  card: '#FFFFFF',
-  text: '#11181C',
-  subtitle: '#64748B',
-  inputBg: '#F1F5F9',
-  white: '#FFFFFF',
-  error: '#EF4444',
-  success: '#10B981',
-};
-
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
   const { token } = useAuth();
   const { showToast } = useToast();
+  const { colors, isDark } = useTheme();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -216,8 +205,8 @@ export default function ProductDetailScreen() {
 
   if (loading) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color={COLORS.secondary} />
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.secondary} />
       </View>
     );
   }
@@ -225,20 +214,20 @@ export default function ProductDetailScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color={COLORS.text} />
+        <View style={[styles.header, { backgroundColor: colors.card }]}>
+          <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{isEditing ? 'Editar Item' : 'Detalhes'}</Text>
-          <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
-            <Ionicons name="trash-outline" size={24} color={COLORS.error} />
+          <Text style={[styles.headerTitle, { color: colors.text }]}>{isEditing ? 'Editar Item' : 'Detalhes'}</Text>
+          <TouchableOpacity onPress={handleDelete} style={[styles.deleteButton, { backgroundColor: isDark ? colors.inputBg : '#FEF2F2' }]}>
+            <Ionicons name="trash-outline" size={24} color={colors.error} />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.imageGallery}>
+        <View style={[styles.imageGallery, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}>
           <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
             {/* Slide Foto do Produto */}
             <View style={styles.imageSlide}>
@@ -250,13 +239,13 @@ export default function ProductDetailScreen() {
                 />
               ) : (
                 <View style={styles.placeholderImage}>
-                  <Ionicons name="cube-outline" size={80} color="#CBD5E1" />
-                  <Text style={styles.placeholderText}>Foto do Produto</Text>
+                  <Ionicons name="cube-outline" size={80} color={isDark ? colors.subtitle : '#CBD5E1'} />
+                  <Text style={[styles.placeholderText, { color: colors.subtitle }]}>Foto do Produto</Text>
                 </View>
               )}
               {isEditing && (
                 <TouchableOpacity style={styles.changeImageButton} onPress={() => pickImage('product')}>
-                  <Ionicons name="camera" size={20} color={COLORS.white} />
+                  <Ionicons name="camera" size={20} color={colors.white} />
                   <Text style={styles.changeImageText}>Trocar Produto</Text>
                 </TouchableOpacity>
               )}
@@ -272,102 +261,102 @@ export default function ProductDetailScreen() {
                 />
               ) : (
                 <View style={styles.placeholderImage}>
-                  <Ionicons name="document-text-outline" size={80} color="#CBD5E1" />
-                  <Text style={styles.placeholderText}>Foto da Etiqueta / Manual</Text>
+                  <Ionicons name="document-text-outline" size={80} color={isDark ? colors.subtitle : '#CBD5E1'} />
+                  <Text style={[styles.placeholderText, { color: colors.subtitle }]}>Foto da Etiqueta / Manual</Text>
                 </View>
               )}
               {isEditing && (
                 <TouchableOpacity style={styles.changeImageButton} onPress={() => pickImage('label')}>
-                  <Ionicons name="camera" size={20} color={COLORS.white} />
+                  <Ionicons name="camera" size={20} color={colors.white} />
                   <Text style={styles.changeImageText}>Trocar Etiqueta</Text>
                 </TouchableOpacity>
               )}
             </View>
           </ScrollView>
           <View style={styles.galleryBadge}>
-            <Ionicons name="swap-horizontal" size={12} color={COLORS.white} />
+            <Ionicons name="swap-horizontal" size={12} color={colors.white} />
             <Text style={styles.galleryBadgeText}>Deslize para ver a etiqueta</Text>
           </View>
         </View>
 
         <View style={styles.content}>
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor: colors.card }]}>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Nome do Produto</Text>
+              <Text style={[styles.label, { color: colors.subtitle }]}>Nome do Produto</Text>
               {isEditing ? (
-                <View style={styles.inputWrapper}>
-                  <Ionicons name="pricetag-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                <View style={[styles.inputWrapper, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: colors.secondary }]}>
+                  <Ionicons name="pricetag-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { color: colors.text }]}
                     value={editData.name}
                     onChangeText={(t) => setEditData({ ...editData, name: t })}
                   />
                 </View>
               ) : (
-                <Text style={styles.value}>{product.name}</Text>
+                <Text style={[styles.value, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F8FAFC' }]}>{product.name}</Text>
               )}
             </View>
 
             <View style={styles.row}>
               <View style={[styles.inputGroup, { flex: 1 }]}>
-                <Text style={styles.label}>Marca</Text>
+                <Text style={[styles.label, { color: colors.subtitle }]}>Marca</Text>
                 {isEditing ? (
-                  <View style={styles.inputWrapper}>
-                    <Ionicons name="business-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                  <View style={[styles.inputWrapper, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: colors.secondary }]}>
+                    <Ionicons name="business-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { color: colors.text }]}
                       value={editData.brand}
                       onChangeText={(t) => setEditData({ ...editData, brand: t })}
                     />
                   </View>
                 ) : (
-                  <Text style={styles.value}>{product.brand || '---'}</Text>
+                  <Text style={[styles.value, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F8FAFC' }]}>{product.brand || '---'}</Text>
                 )}
               </View>
               <View style={[styles.inputGroup, { flex: 1 }]}>
-                <Text style={styles.label}>Modelo</Text>
+                <Text style={[styles.label, { color: colors.subtitle }]}>Modelo</Text>
                 {isEditing ? (
-                  <View style={styles.inputWrapper}>
-                    <Ionicons name="barcode-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                  <View style={[styles.inputWrapper, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: colors.secondary }]}>
+                    <Ionicons name="barcode-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { color: colors.text }]}
                       value={editData.model}
                       onChangeText={(t) => setEditData({ ...editData, model: t })}
                     />
                   </View>
                 ) : (
-                  <Text style={styles.value}>{product.model || '---'}</Text>
+                  <Text style={[styles.value, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F8FAFC' }]}>{product.model || '---'}</Text>
                 )}
               </View>
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Categoria / Notas</Text>
+              <Text style={[styles.label, { color: colors.subtitle }]}>Categoria / Notas</Text>
               {isEditing ? (
-                <View style={styles.inputWrapper}>
-                  <Ionicons name="apps-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                <View style={[styles.inputWrapper, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: colors.secondary }]}>
+                  <Ionicons name="apps-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { color: colors.text }]}
                     value={editData.notes}
                     onChangeText={(t) => setEditData({ ...editData, notes: t })}
                   />
                 </View>
               ) : (
-                <Text style={styles.value}>{product.notes || '---'}</Text>
+                <Text style={[styles.value, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F8FAFC' }]}>{product.notes || '---'}</Text>
               )}
             </View>
           </View>
 
-          <View style={[styles.card, { marginTop: 16 }]}>
-            <Text style={styles.sectionTitle}>Dimensões Técnicas</Text>
+          <View style={[styles.card, { backgroundColor: colors.card, marginTop: 16 }]}>
+            <Text style={[styles.sectionTitle, { color: colors.secondary }]}>Dimensões Técnicas</Text>
             {isEditing ? (
               <View style={styles.measuresForm}>
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Altura (cm)</Text>
-                  <View style={styles.inputWrapper}>
-                    <Ionicons name="resize-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                  <Text style={[styles.label, { color: colors.subtitle }]}>Altura (cm)</Text>
+                  <View style={[styles.inputWrapper, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: colors.secondary }]}>
+                    <Ionicons name="resize-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { color: colors.text }]}
                       value={measures.height}
                       onChangeText={(t) => setMeasures({ ...measures, height: t })}
                       keyboardType="decimal-pad"
@@ -376,13 +365,13 @@ export default function ProductDetailScreen() {
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Largura (cm)</Text>
-                  <View style={styles.inputWrapper}>
+                  <Text style={[styles.label, { color: colors.subtitle }]}>Largura (cm)</Text>
+                  <View style={[styles.inputWrapper, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: colors.secondary }]}>
                     <View style={{ transform: [{ rotate: '90deg' }] }}>
-                      <Ionicons name="resize-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                      <Ionicons name="resize-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
                     </View>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { color: colors.text }]}
                       value={measures.width}
                       onChangeText={(t) => setMeasures({ ...measures, width: t })}
                       keyboardType="decimal-pad"
@@ -391,13 +380,13 @@ export default function ProductDetailScreen() {
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Profundidade (cm)</Text>
-                  <View style={styles.inputWrapper}>
+                  <Text style={[styles.label, { color: colors.subtitle }]}>Profundidade (cm)</Text>
+                  <View style={[styles.inputWrapper, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: colors.secondary }]}>
                     <View style={{ transform: [{ rotate: '45deg' }] }}>
-                      <Ionicons name="resize-outline" size={20} color={COLORS.subtitle} style={styles.inputIcon} />
+                      <Ionicons name="resize-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
                     </View>
                     <TextInput
-                      style={styles.input}
+                      style={[styles.input, { color: colors.text }]}
                       value={measures.depth}
                       onChangeText={(t) => setMeasures({ ...measures, depth: t })}
                       keyboardType="decimal-pad"
@@ -407,8 +396,8 @@ export default function ProductDetailScreen() {
               </View>
             ) : (
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Tamanho / Medidas</Text>
-                <Text style={styles.value}>{product.size || '---'}</Text>
+                <Text style={[styles.label, { color: colors.subtitle }]}>Tamanho / Medidas</Text>
+                <Text style={[styles.value, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F8FAFC' }]}>{product.size || '---'}</Text>
               </View>
             )}
           </View>
@@ -418,7 +407,7 @@ export default function ProductDetailScreen() {
           {isEditing ? (
             <View style={styles.editActions}>
               <TouchableOpacity 
-                style={styles.cancelButton} 
+                style={[styles.cancelButton, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]} 
                 onPress={() => {
                   setIsEditing(false);
                   setEditData(product);
@@ -426,27 +415,27 @@ export default function ProductDetailScreen() {
                   setNewLabelUri(null);
                 }}
               >
-                <Text style={styles.cancelButtonText}>Cancelar</Text>
+                <Text style={[styles.cancelButtonText, { color: colors.subtitle }]}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity 
-                style={styles.saveButton} 
+                style={[styles.saveButton, { backgroundColor: colors.success }]} 
                 onPress={handleUpdate}
                 disabled={saving}
               >
                 {saving ? (
-                  <ActivityIndicator color={COLORS.white} />
+                  <ActivityIndicator color={colors.white} />
                 ) : (
                   <>
-                    <Text style={styles.saveButtonText}>Salvar Alterações</Text>
-                    <Ionicons name="checkmark" size={20} color={COLORS.white} />
+                    <Text style={[styles.saveButtonText, { color: colors.white }]}>Salvar Alterações</Text>
+                    <Ionicons name="checkmark" size={20} color={colors.white} />
                   </>
                 )}
               </TouchableOpacity>
             </View>
           ) : (
-            <TouchableOpacity style={styles.editModeButton} onPress={() => setIsEditing(true)}>
-              <Text style={styles.editModeButtonText}>Editar Item</Text>
-              <Ionicons name="create-outline" size={20} color={COLORS.white} />
+            <TouchableOpacity style={[styles.editModeButton, { backgroundColor: colors.secondary, shadowColor: colors.secondary }]} onPress={() => setIsEditing(true)}>
+              <Text style={[styles.editModeButtonText, { color: colors.white }]}>Editar Item</Text>
+              <Ionicons name="create-outline" size={20} color={colors.white} />
             </TouchableOpacity>
           )}
         </View>
@@ -469,7 +458,6 @@ export default function ProductDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   centerContainer: {
     flex: 1,
@@ -486,27 +474,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 60,
     paddingBottom: 20,
-    backgroundColor: COLORS.white,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: COLORS.text,
   },
   backButton: {
     padding: 8,
     borderRadius: 12,
-    backgroundColor: '#F1F5F9',
   },
   deleteButton: {
     padding: 8,
     borderRadius: 12,
-    backgroundColor: '#FEF2F2',
   },
   imageGallery: {
     width: '100%',
     height: 350,
-    backgroundColor: '#F1F5F9',
   },
   imageSlide: {
     width: Dimensions.get('window').width,
@@ -528,7 +511,6 @@ const styles = StyleSheet.create({
   placeholderText: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.subtitle,
   },
   galleryBadge: {
     position: 'absolute',
@@ -543,7 +525,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   galleryBadgeText: {
-    color: COLORS.white,
+    color: '#FFFFFF',
     fontSize: 10,
     fontWeight: '700',
   },
@@ -554,7 +536,6 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   card: {
-    backgroundColor: COLORS.white,
     borderRadius: 24,
     padding: 24,
     shadowColor: '#000',
@@ -566,7 +547,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: COLORS.secondary,
     marginBottom: 16,
   },
   inputGroup: {
@@ -576,19 +556,16 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '700',
-    color: COLORS.subtitle,
     textTransform: 'uppercase',
     marginLeft: 4,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F1F5F9',
     borderRadius: 16,
     paddingHorizontal: 16,
     height: 56,
     borderWidth: 1,
-    borderColor: COLORS.secondary,
   },
   inputIcon: {
     marginRight: 12,
@@ -596,8 +573,6 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
-    backgroundColor: '#F8FAFC',
     padding: 12,
     borderRadius: 12,
     overflow: 'hidden',
@@ -606,7 +581,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '600',
-    color: COLORS.text,
   },
   row: {
     flexDirection: 'row',
@@ -617,21 +591,19 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   editModeButton: {
-    backgroundColor: COLORS.secondary,
     height: 60,
     borderRadius: 30,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
-    shadowColor: COLORS.secondary,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 6,
   },
   editModeButtonText: {
-    color: COLORS.white,
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '800',
   },
@@ -643,12 +615,10 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#F1F5F9',
     justifyContent: 'center',
     alignItems: 'center',
   },
   cancelButtonText: {
-    color: COLORS.subtitle,
     fontSize: 16,
     fontWeight: '700',
   },
@@ -665,7 +635,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   changeImageText: {
-    color: COLORS.white,
+    color: '#FFFFFF',
     fontWeight: '700',
     fontSize: 14,
   },
@@ -673,14 +643,13 @@ const styles = StyleSheet.create({
     flex: 2,
     height: 60,
     borderRadius: 30,
-    backgroundColor: COLORS.success,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
   },
   saveButtonText: {
-    color: COLORS.white,
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '800',
   },
