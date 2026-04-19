@@ -18,6 +18,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../context/auth-context';
 import { useToast } from '../../context/toast-context';
 import { useTheme } from '../../context/theme-context';
+import { ImagePickerModal } from '../../components/ui/image-picker-modal';
 import { productsApi } from '../../services/api';
 
 // Importar Constants para pegar o IP dinâmico
@@ -32,6 +33,11 @@ export default function CreateProductScreen() {
   const { colors, isDark } = useTheme();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  
+  // States para o modal de imagem
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [activePickerType, setActivePickerType] = useState<'product' | 'label'>('product');
+
   const [formData, setFormData] = useState({
     name: '',
     brand: '',
@@ -86,23 +92,54 @@ export default function CreateProductScreen() {
     return true;
   };
 
-  const pickImage = async (type: 'product' | 'label') => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    
-    if (status !== 'granted') {
-      showToast('Precisamos de acesso à câmera para tirar fotos.', 'error');
-      return;
+  const pickImage = (type: 'product' | 'label') => {
+    setActivePickerType(type);
+    setPickerVisible(true);
+  };
+
+  const openCamera = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        showToast('Precisamos de acesso à câmera.', 'error');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        setImages(prev => ({ ...prev, [activePickerType]: result.assets[0].uri }));
+      }
+    } catch (err) {
+      console.error('[Create] Erro ao disparar câmera:', err);
     }
+  };
 
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
-    });
+  const openLibrary = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        showToast('Precisamos de acesso à sua galeria.', 'error');
+        return;
+      }
 
-    if (!result.canceled) {
-      setImages(prev => ({ ...prev, [type]: result.assets[0].uri }));
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        setImages(prev => ({ ...prev, [activePickerType]: result.assets[0].uri }));
+      }
+    } catch (err) {
+      console.error('[Create] Erro ao disparar galeria:', err);
     }
   };
 
@@ -410,6 +447,13 @@ export default function CreateProductScreen() {
           )}
         </TouchableOpacity>
       </ScrollView>
+
+      <ImagePickerModal
+        visible={pickerVisible}
+        onClose={() => setPickerVisible(false)}
+        onCamera={openCamera}
+        onLibrary={openLibrary}
+      />
     </KeyboardAvoidingView>
   );
 }

@@ -20,6 +20,7 @@ import { useAuth } from '../../context/auth-context';
 import { useToast } from '../../context/toast-context';
 import { useTheme } from '../../context/theme-context';
 import { ConfirmModal } from '../../components/ui/confirm-modal';
+import { ImagePickerModal } from '../../components/ui/image-picker-modal';
 import { productsApi } from '../../services/api';
 
 // Importar Constants para pegar o IP dinâmico
@@ -41,8 +42,10 @@ export default function ProductDetailScreen() {
   const [newImageUri, setNewImageUri] = useState<string | null>(null);
   const [newLabelUri, setNewLabelUri] = useState<string | null>(null);
   
-  // State para modal de exclusão
+  // State para modais
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [activePickerType, setActivePickerType] = useState<'product' | 'label'>('product');
 
   // Mapear imagens por tipo para garantir consistência visual
   const productImage = product?.images?.find((img: any) => img.type === 'PRODUCT');
@@ -84,23 +87,56 @@ export default function ProductDetailScreen() {
     }
   };
 
-  const pickImage = async (type: 'product' | 'label') => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      showToast('Precisamos de acesso à câmera.', 'error');
-      return;
+  const pickImage = (type: 'product' | 'label') => {
+    setActivePickerType(type);
+    setPickerVisible(true);
+  };
+
+  const openCamera = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        showToast('Precisamos de acesso à câmera.', 'error');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        if (activePickerType === 'product') setNewImageUri(result.assets[0].uri);
+        else setNewLabelUri(result.assets[0].uri);
+      }
+    } catch (err) {
+      console.error('[Detail] Erro ao disparar câmera:', err);
     }
+  };
 
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
+  const openLibrary = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        showToast('Precisamos de acesso à sua galeria.', 'error');
+        return;
+      }
 
-    if (!result.canceled) {
-      if (type === 'product') setNewImageUri(result.assets[0].uri);
-      else setNewLabelUri(result.assets[0].uri);
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        if (activePickerType === 'product') setNewImageUri(result.assets[0].uri);
+        else setNewLabelUri(result.assets[0].uri);
+      }
+    } catch (err) {
+      console.error('[Detail] Erro ao disparar galeria:', err);
     }
   };
 
@@ -451,6 +487,13 @@ export default function ProductDetailScreen() {
         onCancel={() => setDeleteModalVisible(false)}
         type="danger"
       />
+
+      <ImagePickerModal
+        visible={pickerVisible}
+        onClose={() => setPickerVisible(false)}
+        onCamera={openCamera}
+        onLibrary={openLibrary}
+      />
     </KeyboardAvoidingView>
   );
 }
@@ -598,8 +641,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
+    shadowOpacity: 0.2,    shadowRadius: 12,
     elevation: 6,
   },
   editModeButtonText: {
@@ -643,6 +685,7 @@ const styles = StyleSheet.create({
     flex: 2,
     height: 60,
     borderRadius: 30,
+    backgroundColor: '#10B981',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
