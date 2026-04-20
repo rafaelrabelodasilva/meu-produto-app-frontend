@@ -158,3 +158,11 @@ export const productsApi = {
     body: formData,
   }),
 };
+
+export const categoriesApi = {
+  list: (token?: string | null) => apiFetch('/categories', {}, token),
+  create: (data: { name: string }, token?: string | null) => apiFetch('/categories', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }, token),
+};

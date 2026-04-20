@@ -21,7 +21,7 @@ import { useToast } from '../../context/toast-context';
 import { useTheme } from '../../context/theme-context';
 import { ConfirmModal } from '../../components/ui/confirm-modal';
 import { ImagePickerModal } from '../../components/ui/image-picker-modal';
-import { productsApi } from '../../services/api';
+import { productsApi, categoriesApi } from '../../services/api';
 
 // Importar Constants para pegar o IP dinâmico
 import Constants from 'expo-constants';
@@ -39,6 +39,8 @@ export default function ProductDetailScreen() {
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<any>(null);
+  const [categoryName, setCategoryName] = useState('');
+  const [purchaseDate, setPurchaseDate] = useState('');
   const [newImageUri, setNewImageUri] = useState<string | null>(null);
   const [newLabelUri, setNewLabelUri] = useState<string | null>(null);
   
@@ -46,6 +48,26 @@ export default function ProductDetailScreen() {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false);
   const [activePickerType, setActivePickerType] = useState<'product' | 'label'>('product');
+
+  const formatCurrency = (value: string) => {
+    const numeric = value.replace(/\D/g, '');
+    if (!numeric) return '';
+    const amount = (parseInt(numeric) / 100).toFixed(2);
+    return amount.replace('.', ',');
+  };
+
+  const formatDate = (value: string) => {
+    const numeric = value.replace(/\D/g, '');
+    if (!numeric) return '';
+    let formatted = numeric;
+    if (numeric.length > 2) {
+      formatted = `${numeric.slice(0, 2)}/${numeric.slice(2)}`;
+    }
+    if (numeric.length > 4) {
+      formatted = `${numeric.slice(0, 2)}/${numeric.slice(2, 4)}/${numeric.slice(4, 8)}`;
+    }
+    return formatted;
+  };
 
   // Mapear imagens por tipo para garantir consistência visual
   const productImage = product?.images?.find((img: any) => img.type === 'PRODUCT');
@@ -66,7 +88,20 @@ export default function ProductDetailScreen() {
     try {
       const data = await productsApi.get(id as string);
       setProduct(data);
-      setEditData(data);
+      
+      const formattedPrice = data.price ? parseFloat(data.price).toFixed(2).replace('.', ',') : '';
+      setEditData({ ...data, price: formattedPrice });
+      setCategoryName(data.category?.name || '');
+      
+      if (data.purchaseDate) {
+        const date = new Date(data.purchaseDate);
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
+        setPurchaseDate(`${day}/${month}/${year}`);
+      } else {
+        setPurchaseDate('');
+      }
 
       if (data.size) {
         const parts = data.size.replace(' cm', '').split(' x ');
@@ -140,20 +175,36 @@ export default function ProductDetailScreen() {
     }
   };
 
+  const getOrCreateCategory = async (name: string) => {
+    if (!name.trim()) return null;
+    try {
+      const categories = await categoriesApi.list();
+      const existing = categories.find((c: any) => c.name.toLowerCase() === name.toLowerCase().trim());
+      if (existing) return existing.id;
+      const newCat = await categoriesApi.create({ name: name.trim() });
+      return newCat.id;
+    } catch (error) {
+      console.error('Erro ao processar categoria:', error);
+      return null;
+    }
+  };
+
   const handleUpdate = async () => {
     if (!id) return;
     setSaving(true);
     try {
+      const categoryId = await getOrCreateCategory(categoryName);
       const updatedSize = `${measures.height || '0'} x ${measures.width || '0'} x ${measures.depth || '0'} cm`;
       
       const payload = {
         name: editData.name,
         brand: editData.brand,
         model: editData.model,
-        price: editData.price ? parseFloat(editData.price.toString()) : 0,
+        price: editData.price ? parseFloat(editData.price.toString().replace(',', '.')) : 0,
         size: updatedSize,
         notes: editData.notes,
-        categoryId: editData.categoryId,
+        categoryId: categoryId,
+        purchaseDate: purchaseDate ? purchaseDate.split('/').reverse().join('-') : null,
       };
 
       // 1. Atualizar textos
@@ -367,14 +418,72 @@ export default function ProductDetailScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={[styles.label, { color: colors.subtitle }]}>Categoria / Notas</Text>
+              <Text style={[styles.label, { color: colors.subtitle }]}>Categoria</Text>
               {isEditing ? (
                 <View style={[styles.inputWrapper, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: colors.secondary }]}>
                   <Ionicons name="apps-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
                   <TextInput
                     style={[styles.input, { color: colors.text }]}
+                    value={categoryName}
+                    onChangeText={setCategoryName}
+                    placeholder="Ex: Móveis"
+                    placeholderTextColor={colors.subtitle}
+                  />
+                </View>
+              ) : (
+                <Text style={[styles.value, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F8FAFC' }]}>{product.category?.name || 'Sem categoria'}</Text>
+              )}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.subtitle }]}>Data de Compra</Text>
+              {isEditing ? (
+                <View style={[styles.inputWrapper, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: colors.secondary }]}>
+                  <Ionicons name="calendar-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
+                  <TextInput
+                    style={[styles.input, { color: colors.text }]}
+                    value={purchaseDate}
+                    onChangeText={(t) => setPurchaseDate(formatDate(t))}
+                    placeholder="DD/MM/AAAA"
+                    placeholderTextColor={colors.subtitle}
+                    maxLength={10}
+                    keyboardType="numeric"
+                  />
+                </View>
+              ) : (
+                <Text style={[styles.value, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F8FAFC' }]}>{purchaseDate || '---'}</Text>
+              )}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.subtitle }]}>Valor Estimado</Text>
+              {isEditing ? (
+                <View style={[styles.inputWrapper, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: colors.secondary }]}>
+                  <Ionicons name="cash-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
+                  <TextInput
+                    style={[styles.input, { color: colors.text }]}
+                    value={editData.price?.toString()}
+                    onChangeText={(t) => setEditData({ ...editData, price: formatCurrency(t) })}
+                    keyboardType="numeric"
+                  />
+                </View>
+              ) : (
+                <Text style={[styles.value, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F8FAFC' }]}>
+                  {product.price ? `R$ ${parseFloat(product.price).toFixed(2).replace('.', ',')}` : '---'}
+                </Text>
+              )}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: colors.subtitle }]}>Notas / Observações</Text>
+              {isEditing ? (
+                <View style={[styles.inputWrapper, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: colors.secondary, height: 100, alignItems: 'flex-start', paddingTop: 12 }]}>
+                  <Ionicons name="document-text-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
+                  <TextInput
+                    style={[styles.input, { color: colors.text, height: '100%' }]}
                     value={editData.notes}
                     onChangeText={(t) => setEditData({ ...editData, notes: t })}
+                    multiline
                   />
                 </View>
               ) : (
@@ -446,7 +555,20 @@ export default function ProductDetailScreen() {
                 style={[styles.cancelButton, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]} 
                 onPress={() => {
                   setIsEditing(false);
-                  setEditData(product);
+                  const formattedPrice = product.price ? parseFloat(product.price).toFixed(2).replace('.', ',') : '';
+                  setEditData({ ...product, price: formattedPrice });
+                  setCategoryName(product.category?.name || '');
+                  
+                  if (product.purchaseDate) {
+                    const date = new Date(product.purchaseDate);
+                    const day = String(date.getUTCDate()).padStart(2, '0');
+                    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                    const year = date.getUTCFullYear();
+                    setPurchaseDate(`${day}/${month}/${year}`);
+                  } else {
+                    setPurchaseDate('');
+                  }
+                  
                   setNewImageUri(null);
                   setNewLabelUri(null);
                 }}
@@ -641,7 +763,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,    shadowRadius: 12,
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
     elevation: 6,
   },
   editModeButtonText: {

@@ -1,8 +1,6 @@
 import { Tabs, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useAuth } from '../../context/auth-context';
 import { useTheme } from '../../context/theme-context';
 
@@ -24,7 +22,6 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.secondary,
         tabBarInactiveTintColor: colors.subtitle,
         headerShown: false,
-        tabBarButton: HapticTab,
         tabBarStyle: {
           height: 85,
           paddingBottom: 25,
@@ -72,7 +69,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="settings"
         options={{
           title: 'Ajustes',
           tabBarIcon: ({ color }) => <Ionicons size={24} name="options-outline" color={color} />,

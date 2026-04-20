@@ -19,7 +19,7 @@ import { useAuth } from '../../context/auth-context';
 import { useToast } from '../../context/toast-context';
 import { useTheme } from '../../context/theme-context';
 import { ImagePickerModal } from '../../components/ui/image-picker-modal';
-import { productsApi } from '../../services/api';
+import { productsApi, categoriesApi } from '../../services/api';
 
 // Importar Constants para pegar o IP dinâmico
 import Constants from 'expo-constants';
@@ -47,6 +47,8 @@ export default function CreateProductScreen() {
     height: '',
     width: '',
     depth: '',
+    purchaseDate: '',
+    notes: '',
   });
 
   const [images, setImages] = useState<{
@@ -58,6 +60,26 @@ export default function CreateProductScreen() {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const formatDate = (value: string) => {
+    const numeric = value.replace(/\D/g, '');
+    if (!numeric) return '';
+    let formatted = numeric;
+    if (numeric.length > 2) {
+      formatted = `${numeric.slice(0, 2)}/${numeric.slice(2)}`;
+    }
+    if (numeric.length > 4) {
+      formatted = `${numeric.slice(0, 2)}/${numeric.slice(2, 4)}/${numeric.slice(4, 8)}`;
+    }
+    return formatted;
+  };
+
+  const formatCurrency = (value: string) => {
+    const numeric = value.replace(/\D/g, '');
+    if (!numeric) return '';
+    const amount = (parseInt(numeric) / 100).toFixed(2);
+    return amount.replace('.', ',');
+  };
 
   // Resetar o formulário ao focar na tela
   useFocusEffect(
@@ -73,6 +95,8 @@ export default function CreateProductScreen() {
           height: '',
           width: '',
           depth: '',
+          purchaseDate: '',
+          notes: '',
         });
         setImages({ product: null, label: null });
         setErrors({});
@@ -151,6 +175,23 @@ export default function CreateProductScreen() {
     }
   };
 
+  const getOrCreateCategory = async (categoryName: string) => {
+    if (!categoryName.trim()) return null;
+    
+    try {
+      const categories = await categoriesApi.list();
+      const existing = categories.find((c: any) => c.name.toLowerCase() === categoryName.toLowerCase().trim());
+      
+      if (existing) return existing.id;
+      
+      const newCat = await categoriesApi.create({ name: categoryName.trim() });
+      return newCat.id;
+    } catch (error) {
+      console.error('Erro ao processar categoria:', error);
+      return null;
+    }
+  };
+
   const handleSubmit = async () => {
     if (!token) {
       showToast('Sessão expirada. Por favor, faça login novamente.', 'error');
@@ -160,6 +201,9 @@ export default function CreateProductScreen() {
 
     setLoading(true);
     try {
+      // 0. Processar Categoria
+      const categoryId = await getOrCreateCategory(formData.category);
+
       // 1. Criar o produto (metadados)
       const productData = {
         name: formData.name,
@@ -167,7 +211,9 @@ export default function CreateProductScreen() {
         model: formData.model,
         price: formData.price ? parseFloat(formData.price.replace(',', '.')) : 0,
         size: `${formData.height || '0'} x ${formData.width || '0'} x ${formData.depth || '0'} cm`,
-        notes: formData.category ? `Categoria: ${formData.category}` : '',
+        categoryId,
+        notes: formData.notes,
+        purchaseDate: formData.purchaseDate ? formData.purchaseDate.split('/').reverse().join('-') : undefined, // Converte DD/MM/YYYY para YYYY-MM-DD
       };
 
       const createdProduct = await productsApi.create(productData);
@@ -282,9 +328,40 @@ export default function CreateProductScreen() {
             style={[styles.input, { color: colors.text }]}
             placeholder="0,00"
             value={formData.price}
-            onChangeText={(text) => setFormData({ ...formData, price: text })}
+            onChangeText={(text) => setFormData({ ...formData, price: formatCurrency(text) })}
             keyboardType="numeric"
             placeholderTextColor={colors.subtitle}
+          />
+        </View>
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={[styles.label, { color: colors.text }]}>Data de Compra (DD/MM/AAAA)</Text>
+        <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
+          <Ionicons name="calendar-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
+          <TextInput
+            style={[styles.input, { color: colors.text }]}
+            placeholder="Ex: 10/05/2024"
+            value={formData.purchaseDate}
+            onChangeText={(text) => setFormData({ ...formData, purchaseDate: formatDate(text) })}
+            keyboardType="numeric"
+            maxLength={10}
+            placeholderTextColor={colors.subtitle}
+          />
+        </View>
+      </View>
+
+      <View style={styles.inputGroup}>
+        <Text style={[styles.label, { color: colors.text }]}>Notas / Observações</Text>
+        <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0', height: 100, alignItems: 'flex-start', paddingTop: 12 }]}>
+          <Ionicons name="document-text-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
+          <TextInput
+            style={[styles.input, { color: colors.text, height: '100%' }]}
+            placeholder="Ex: Comprado na Shopee, garantia de 1 ano..."
+            value={formData.notes}
+            onChangeText={(text) => setFormData({ ...formData, notes: text })}
+            placeholderTextColor={colors.subtitle}
+            multiline
           />
         </View>
       </View>
