@@ -14,9 +14,12 @@ export const AUTH_EVENTS = {
 const debuggerHost = Constants.expoConfig?.hostUri;
 const localhost = debuggerHost?.split(':').shift();
 
-const API_URL = localhost 
+export const API_URL = localhost 
   ? `http://${localhost}:3000` 
   : 'http://localhost:3000';
+
+export const getImageUrl = (url: string | undefined) => 
+  url ? `${API_URL}/uploads/${url}?t=${new Date().getTime()}` : null;
 
 console.log('API_URL configurada para:', API_URL);
 
