@@ -393,8 +393,8 @@ export default function CreateProductScreen() {
       <View style={styles.inputGroup}>
         <Text style={[styles.label, { color: colors.text }]}>Largura (cm)</Text>
         <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }, errors.width && styles.inputError]}>
-          <View style={{ transform: [{ rotate: '90deg' }] }}>
-            <Ionicons name="resize-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
+          <View style={{ transform: [{ rotate: '90deg' }], marginRight: 12 }}>
+            <Ionicons name="resize-outline" size={20} color={colors.subtitle} />
           </View>
           <TextInput
             style={[styles.input, { color: colors.text }]}
@@ -410,8 +410,8 @@ export default function CreateProductScreen() {
       <View style={styles.inputGroup}>
         <Text style={[styles.label, { color: colors.text }]}>Profundidade (cm)</Text>
         <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }, errors.depth && styles.inputError]}>
-          <View style={{ transform: [{ rotate: '45deg' }] }}>
-            <Ionicons name="resize-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
+          <View style={{ transform: [{ rotate: '45deg' }], marginRight: 12 }}>
+            <Ionicons name="resize-outline" size={20} color={colors.subtitle} />
           </View>
           <TextInput
             style={[styles.input, { color: colors.text }]}
