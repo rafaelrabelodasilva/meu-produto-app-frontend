@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/theme-context';
 import { getImageUrl } from '../../services/api';
+import { ImageFullscreenModal } from '../ui/image-fullscreen-modal';
 
 const { width } = Dimensions.get('window');
 
@@ -22,6 +23,7 @@ export const ProductGallery = ({
   onPickImage 
 }: ProductGalleryProps) => {
   const { colors, isDark } = useTheme();
+  const [fullscreenUri, setFullscreenUri] = useState<string | null>(null);
 
   const productImage = product?.images?.find((img: any) => img.type === 'PRODUCT');
   const labelImage = product?.images?.find((img: any) => img.type === 'LABEL');
@@ -29,10 +31,20 @@ export const ProductGallery = ({
   const mainUri = newImageUri || getImageUrl(productImage?.url);
   const labelUri = newLabelUri || getImageUrl(labelImage?.url);
 
+  const handleImagePress = (uri: string | null) => {
+    if (!isEditing && uri) {
+      setFullscreenUri(uri);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Imagem Principal do Produto */}
-      <View style={[styles.mainCard, { backgroundColor: isDark ? colors.card : '#F1F5F9', shadowColor: colors.secondary }]}>
+      <TouchableOpacity 
+        activeOpacity={isEditing ? 1 : 0.7}
+        onPress={() => handleImagePress(mainUri)}
+        style={[styles.mainCard, { backgroundColor: isDark ? colors.card : '#F1F5F9', shadowColor: colors.secondary }]}
+      >
         {mainUri ? (
           <Image source={{ uri: mainUri }} style={styles.heroImage} resizeMode="cover" />
         ) : (
@@ -50,14 +62,13 @@ export const ProductGallery = ({
             <Ionicons name="camera" size={20} color="#FFF" />
           </TouchableOpacity>
         )}
-      </View>
+      </TouchableOpacity>
 
       {/* Miniatura da Etiqueta/Manual */}
       <View style={styles.secondarySection}>
         <TouchableOpacity 
           style={[styles.labelCard, { backgroundColor: isDark ? colors.card : '#FFF', borderColor: isDark ? colors.border : '#E2E8F0' }]}
-          disabled={!isEditing}
-          onPress={() => onPickImage('label')}
+          onPress={() => isEditing ? onPickImage('label') : handleImagePress(labelUri)}
         >
           {labelUri ? (
             <Image source={{ uri: labelUri }} style={styles.labelImage} resizeMode="cover" />
@@ -69,7 +80,7 @@ export const ProductGallery = ({
           <View style={styles.labelInfo}>
             <Text style={[styles.labelTitle, { color: colors.text }]}>Etiqueta / Manual</Text>
             <Text style={[styles.labelSubtitle, { color: colors.subtitle }]}>
-              {labelUri ? 'Visualizar detalhe' : 'Nenhuma foto anexada'}
+              {labelUri ? (isEditing ? 'Clique para trocar' : 'Clique para ampliar') : 'Nenhuma foto anexada'}
             </Text>
           </View>
           {isEditing && (
@@ -77,6 +88,12 @@ export const ProductGallery = ({
           )}
         </TouchableOpacity>
       </View>
+
+      <ImageFullscreenModal 
+        visible={!!fullscreenUri}
+        imageUrl={fullscreenUri}
+        onClose={() => setFullscreenUri(null)}
+      />
     </View>
   );
 };
