@@ -16,6 +16,7 @@ export function useProductDetail(id: string) {
   const [isEditing, setIsEditing] = useState(false);
   
   const [editData, setEditData] = useState<any>(null);
+  const [categoryId, setCategoryId] = useState<string | null>(null);
   const [categoryName, setCategoryName] = useState('');
   const [purchaseDate, setPurchaseDate] = useState('');
   const [newImageUri, setNewImageUri] = useState<string | null>(null);
@@ -40,6 +41,7 @@ export function useProductDetail(id: string) {
       
       const formattedPrice = data.price ? parseFloat(data.price).toFixed(2).replace('.', ',') : '';
       setEditData({ ...data, price: formattedPrice });
+      setCategoryId(data.category?.id || null);
       setCategoryName(data.category?.name || '');
       setPurchaseDate(parseDateToBR(data.purchaseDate));
       
@@ -71,6 +73,7 @@ export function useProductDetail(id: string) {
       // Reset data on cancel
       const formattedPrice = product.price ? parseFloat(product.price).toFixed(2).replace('.', ',') : '';
       setEditData({ ...product, price: formattedPrice });
+      setCategoryId(product.category?.id || null);
       setCategoryName(product.category?.name || '');
       setPurchaseDate(parseDateToBR(product.purchaseDate));
       setNewImageUri(null);
@@ -143,20 +146,6 @@ export function useProductDetail(id: string) {
     }
   };
 
-  const getOrCreateCategory = async (name: string) => {
-    if (!name.trim()) return null;
-    try {
-      const categories = await categoriesApi.list();
-      const existing = categories.find((c: any) => c.name.toLowerCase() === name.toLowerCase().trim());
-      if (existing) return existing.id;
-      const newCat = await categoriesApi.create({ name: name.trim() });
-      return newCat.id;
-    } catch (error) {
-      console.error('Erro ao processar categoria:', error);
-      return null;
-    }
-  };
-
   const uploadNewImage = async (uri: string, type: string) => {
     const formData = new FormData();
     const uriParts = uri.split('.');
@@ -193,7 +182,6 @@ export function useProductDetail(id: string) {
     if (!id) return;
     setSaving(true);
     try {
-      const categoryId = await getOrCreateCategory(categoryName);
       const updatedSize = `${measures.height || '0'} x ${measures.width || '0'} x ${measures.depth || '0'} cm`;
       
       const payload = {
@@ -254,6 +242,7 @@ export function useProductDetail(id: string) {
     saving,
     isEditing,
     editData,
+    categoryId,
     categoryName,
     purchaseDate,
     newImageUri,
@@ -262,6 +251,7 @@ export function useProductDetail(id: string) {
     deleteModalVisible,
     pickerVisible,
     setEditData,
+    setCategoryId,
     setCategoryName,
     setPurchaseDate,
     setMeasures,

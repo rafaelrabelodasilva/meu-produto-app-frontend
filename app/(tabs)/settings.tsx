@@ -225,7 +225,9 @@ export default function ProfileScreen() {
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.subtitle }]}>Sessão</Text>
+
           <TouchableOpacity style={[styles.menuItem, { backgroundColor: colors.card }]} onPress={handleLogout}>
+
             <View style={[styles.iconWrapper, { backgroundColor: isDark ? colors.inputBg : '#EEF2FF' }]}>
               <Ionicons name="log-out-outline" size={22} color={colors.secondary} />
             </View>

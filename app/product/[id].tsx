@@ -32,6 +32,7 @@ export default function ProductDetailScreen() {
     saving,
     isEditing,
     editData,
+    categoryId,
     categoryName,
     purchaseDate,
     newImageUri,
@@ -40,6 +41,7 @@ export default function ProductDetailScreen() {
     deleteModalVisible,
     pickerVisible,
     setEditData,
+    setCategoryId,
     setCategoryName,
     setPurchaseDate,
     setMeasures,
@@ -81,17 +83,18 @@ export default function ProductDetailScreen() {
         />
 
         <View style={styles.content}>
-          <ProductInfoSection 
+          <ProductInfoSection
             product={product}
             isEditing={isEditing}
             editData={editData}
+            categoryId={categoryId}
             categoryName={categoryName}
             purchaseDate={purchaseDate}
             setEditData={setEditData}
+            setCategoryId={setCategoryId}
             setCategoryName={setCategoryName}
             setPurchaseDate={setPurchaseDate}
           />
-
           <ProductMeasuresSection 
             product={product}
             isEditing={isEditing}

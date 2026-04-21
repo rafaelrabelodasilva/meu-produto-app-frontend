@@ -168,4 +168,11 @@ export const categoriesApi = {
     method: 'POST',
     body: JSON.stringify(data),
   }, token),
+  update: (id: string, data: { name: string }, token?: string | null) => apiFetch(`/categories/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }, token),
+  delete: (id: string, token?: string | null) => apiFetch(`/categories/${id}`, {
+    method: 'DELETE',
+  }, token),
 };

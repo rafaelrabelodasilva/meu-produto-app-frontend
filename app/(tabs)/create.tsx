@@ -19,6 +19,7 @@ import { useAuth } from '../../context/auth-context';
 import { useToast } from '../../context/toast-context';
 import { useTheme } from '../../context/theme-context';
 import { ImagePickerModal } from '../../components/ui/image-picker-modal';
+import { CategoryPicker } from '../../components/product/CategoryPicker';
 import { productsApi, categoriesApi } from '../../services/api';
 
 // Importar Constants para pegar o IP dinâmico
@@ -42,7 +43,8 @@ export default function CreateProductScreen() {
     name: '',
     brand: '',
     model: '',
-    category: '',
+    categoryId: null as string | null,
+    categoryName: '',
     price: '',
     height: '',
     width: '',
@@ -90,7 +92,8 @@ export default function CreateProductScreen() {
           name: '',
           brand: '',
           model: '',
-          category: '',
+          categoryId: null,
+          categoryName: '',
           price: '',
           height: '',
           width: '',
@@ -175,23 +178,6 @@ export default function CreateProductScreen() {
     }
   };
 
-  const getOrCreateCategory = async (categoryName: string) => {
-    if (!categoryName.trim()) return null;
-    
-    try {
-      const categories = await categoriesApi.list();
-      const existing = categories.find((c: any) => c.name.toLowerCase() === categoryName.toLowerCase().trim());
-      
-      if (existing) return existing.id;
-      
-      const newCat = await categoriesApi.create({ name: categoryName.trim() });
-      return newCat.id;
-    } catch (error) {
-      console.error('Erro ao processar categoria:', error);
-      return null;
-    }
-  };
-
   const handleSubmit = async () => {
     if (!token) {
       showToast('Sessão expirada. Por favor, faça login novamente.', 'error');
@@ -201,9 +187,6 @@ export default function CreateProductScreen() {
 
     setLoading(true);
     try {
-      // 0. Processar Categoria
-      const categoryId = await getOrCreateCategory(formData.category);
-
       // 1. Criar o produto (metadados)
       const productData = {
         name: formData.name,
@@ -211,7 +194,7 @@ export default function CreateProductScreen() {
         model: formData.model,
         price: formData.price ? parseFloat(formData.price.replace(',', '.')) : 0,
         size: `${formData.height || '0'} x ${formData.width || '0'} x ${formData.depth || '0'} cm`,
-        categoryId,
+        categoryId: formData.categoryId,
         notes: formData.notes,
         purchaseDate: formData.purchaseDate ? formData.purchaseDate.split('/').reverse().join('-') : undefined, // Converte DD/MM/YYYY para YYYY-MM-DD
       };
@@ -306,18 +289,11 @@ export default function CreateProductScreen() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={[styles.label, { color: colors.text }]}>Categoria</Text>
-        <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }, errors.category && styles.inputError]}>
-          <Ionicons name="apps-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
-          <TextInput
-            style={[styles.input, { color: colors.text }]}
-            placeholder="Ex: Móveis"
-            value={formData.category}
-            onChangeText={(text) => setFormData({ ...formData, category: text })}
-            placeholderTextColor={colors.subtitle}
-          />
-        </View>
-        {errors.category && <Text style={styles.errorText}>{errors.category}</Text>}
+        <CategoryPicker
+          selectedId={formData.categoryId}
+          selectedName={formData.categoryName}
+          onSelect={(id, name) => setFormData({ ...formData, categoryId: id, categoryName: name })}
+        />
       </View>
 
       <View style={styles.inputGroup}>

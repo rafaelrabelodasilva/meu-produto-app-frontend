@@ -4,13 +4,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/theme-context';
 import { formatDate, formatCurrency } from '../../services/utils';
 
+import { CategoryPicker } from './CategoryPicker';
+
 interface ProductInfoSectionProps {
   product: any;
   isEditing: boolean;
   editData: any;
+  categoryId: string | null;
   categoryName: string;
   purchaseDate: string;
   setEditData: (data: any) => void;
+  setCategoryId: (id: string | null) => void;
   setCategoryName: (name: string) => void;
   setPurchaseDate: (date: string) => void;
 }
@@ -19,15 +23,17 @@ export const ProductInfoSection = ({
   product,
   isEditing,
   editData,
+  categoryId,
   categoryName,
   purchaseDate,
   setEditData,
+  setCategoryId,
   setCategoryName,
   setPurchaseDate,
 }: ProductInfoSectionProps) => {
   const { colors, isDark } = useTheme();
 
-  const renderField = (label: string, value: string, icon: any, key?: string, isCategory = false, isDate = false, isPrice = false, multiline = false) => {
+  const renderField = (label: string, value: string, icon: any, key?: string, isDate = false, isPrice = false, multiline = false) => {
     const displayValue = value || '---';
 
     return (
@@ -44,8 +50,7 @@ export const ProductInfoSection = ({
               style={[styles.input, { color: colors.text }, multiline && { height: '100%' }]}
               value={value}
               onChangeText={(t) => {
-                if (isCategory) setCategoryName(t);
-                else if (isDate) setPurchaseDate(formatDate(t));
+                if (isDate) setPurchaseDate(formatDate(t));
                 else if (isPrice) setEditData({ ...editData, price: formatCurrency(t) });
                 else if (key) setEditData({ ...editData, [key]: t });
               }}
@@ -78,7 +83,23 @@ export const ProductInfoSection = ({
         </View>
       </View>
 
-      {renderField('Categoria', isEditing ? categoryName : product.category?.name, 'apps-outline', undefined, true)}
+      <View style={styles.inputGroup}>
+        <Text style={[styles.label, { color: colors.subtitle }]}>Categoria</Text>
+        {isEditing ? (
+          <CategoryPicker
+            selectedId={categoryId}
+            selectedName={categoryName}
+            onSelect={(id, name) => {
+              setCategoryId(id);
+              setCategoryName(name);
+            }}
+          />
+        ) : (
+          <Text style={[styles.value, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F8FAFC' }]}>
+            {product.category?.name || '---'}
+          </Text>
+        )}
+      </View>
       {renderField('Data de Compra', isEditing ? purchaseDate : purchaseDate, 'calendar-outline', undefined, false, true)}
       {renderField('Valor Estimado', isEditing ? editData.price?.toString() : '', 'cash-outline', undefined, false, false, true)}
       {renderField('Notas / Observações', isEditing ? editData.notes : product.notes, 'document-text-outline', 'notes', false, false, false, true)}
