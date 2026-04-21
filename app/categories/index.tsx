@@ -17,7 +17,7 @@ import { useTheme } from '../../context/theme-context';
 import { useToast } from '../../context/toast-context';
 import { categoriesApi } from '../../services/api';
 import { ConfirmModal } from '../../components/ui/confirm-modal';
-import { styles } from './categories.styles';
+import { styles } from './_categories.styles';
 
 export default function CategoriesScreen() {
   const { colors, isDark } = useTheme();

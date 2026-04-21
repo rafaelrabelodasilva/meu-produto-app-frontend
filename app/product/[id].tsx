@@ -6,7 +6,10 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
+  Text,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { useTheme } from '../../context/theme-context';
 
@@ -16,11 +19,11 @@ import { ImagePickerModal } from '../../components/ui/image-picker-modal';
 import { ProductHeader } from '../../components/product/ProductHeader';
 import { ProductGallery } from '../../components/product/ProductGallery';
 import { ProductInfoSection } from '../../components/product/ProductInfoSection';
-import { ProductMeasuresSection } from '../../components/product/ProductMeasuresSection';
 import { ProductFooterActions } from '../../components/product/ProductFooterActions';
 
 // Hook
 import { useProductDetail } from '../../hooks/use-product-detail';
+import { styles } from './product-detail.styles';
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -69,10 +72,7 @@ export default function ProductDetailScreen() {
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <ProductHeader 
-          title={isEditing ? 'Editar Item' : 'Detalhes'} 
-          onDelete={() => setDeleteModalVisible(true)} 
-        />
+        <ProductHeader title={isEditing ? 'Editar Item' : 'Detalhes'} />
 
         <ProductGallery 
           product={product}
@@ -90,15 +90,11 @@ export default function ProductDetailScreen() {
             categoryId={categoryId}
             categoryName={categoryName}
             purchaseDate={purchaseDate}
+            measures={measures}
             setEditData={setEditData}
             setCategoryId={setCategoryId}
             setCategoryName={setCategoryName}
             setPurchaseDate={setPurchaseDate}
-          />
-          <ProductMeasuresSection 
-            product={product}
-            isEditing={isEditing}
-            measures={measures}
             setMeasures={setMeasures}
           />
         </View>
@@ -110,6 +106,21 @@ export default function ProductDetailScreen() {
           onCancel={() => toggleEditing(false)}
           onSave={handleUpdate}
         />
+
+        {!isEditing && (
+          <View style={styles.dangerZoneWrapper}>
+            <View style={styles.dangerZone}>
+              <Text style={[styles.dangerTitle, { color: colors.subtitle }]}>Zona de Perigo</Text>
+              <TouchableOpacity 
+                style={[styles.dangerButton, { borderColor: 'rgba(239, 68, 68, 0.3)' }]} 
+                onPress={() => setDeleteModalVisible(true)}
+              >
+                <Ionicons name="trash-outline" size={20} color={colors.error} />
+                <Text style={[styles.dangerButtonText, { color: colors.error }]}>Remover este Item</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </ScrollView>
 
       <ConfirmModal
@@ -132,19 +143,3 @@ export default function ProductDetailScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
-  content: {
-    padding: 24,
-  },
-});

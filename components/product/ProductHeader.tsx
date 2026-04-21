@@ -6,10 +6,9 @@ import { useTheme } from '../../context/theme-context';
 
 interface ProductHeaderProps {
   title: string;
-  onDelete: () => void;
 }
 
-export const ProductHeader = ({ title, onDelete }: ProductHeaderProps) => {
+export const ProductHeader = ({ title }: ProductHeaderProps) => {
   const { colors, isDark } = useTheme();
 
   return (
@@ -23,12 +22,7 @@ export const ProductHeader = ({ title, onDelete }: ProductHeaderProps) => {
       
       <Text style={[styles.headerTitle, { color: colors.text }]}>{title}</Text>
       
-      <TouchableOpacity 
-        onPress={onDelete} 
-        style={[styles.deleteButton, { backgroundColor: isDark ? colors.inputBg : '#FEF2F2' }]}
-      >
-        <Ionicons name="trash-outline" size={24} color={colors.error} />
-      </TouchableOpacity>
+      <View style={{ width: 40 }} />
     </View>
   );
 };

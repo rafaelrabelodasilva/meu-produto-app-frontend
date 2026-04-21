@@ -1,10 +1,9 @@
 import React from 'react';
-import { StyleSheet, View, Text, TextInput } from 'react-native';
+import { View, Text, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/theme-context';
-import { formatDate, formatCurrency } from '../../services/utils';
+import { formatDate, formatCurrency, parseDateToBR } from '../../services/utils';
 import { styles } from './ProductInfoSection.styles';
-
 import { CategoryPicker } from './CategoryPicker';
 
 interface ProductInfoSectionProps {
@@ -14,10 +13,12 @@ interface ProductInfoSectionProps {
   categoryId: string | null;
   categoryName: string;
   purchaseDate: string;
+  measures: any;
   setEditData: (data: any) => void;
   setCategoryId: (id: string | null) => void;
   setCategoryName: (name: string) => void;
   setPurchaseDate: (date: string) => void;
+  setMeasures: (m: any) => void;
 }
 
 export const ProductInfoSection = ({
@@ -27,15 +28,29 @@ export const ProductInfoSection = ({
   categoryId,
   categoryName,
   purchaseDate,
+  measures,
   setEditData,
   setCategoryId,
   setCategoryName,
   setPurchaseDate,
+  setMeasures,
 }: ProductInfoSectionProps) => {
   const { colors, isDark } = useTheme();
 
-  const renderField = (label: string, value: string, icon: any, key?: string, isDate = false, isPrice = false, multiline = false) => {
-    const displayValue = value || '---';
+  const renderField = (label: string, value: string, icon: any, key?: string, isDate = false, isPrice = false, multiline = false, keyboardType: any = "default") => {
+    // No modo de edição, usamos o valor passado (estado de edição)
+    // No modo de visualização, usamos o valor do objeto product diretamente
+    let displayValue = value || '---';
+
+    if (!isEditing) {
+      if (isPrice && product.price) {
+        displayValue = `R$ ${parseFloat(product.price).toFixed(2).replace('.', ',')}`;
+      } else if (isDate && product.purchaseDate) {
+        displayValue = parseDateToBR(product.purchaseDate);
+      } else if (key) {
+        displayValue = product[key] || '---';
+      }
+    }
 
     return (
       <View style={styles.inputGroup}>
@@ -43,7 +58,7 @@ export const ProductInfoSection = ({
         {isEditing ? (
           <View style={[
             styles.inputWrapper, 
-            { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: colors.secondary },
+            { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: isDark ? colors.border : '#E2E8F0' },
             multiline && { height: 100, alignItems: 'flex-start', paddingTop: 12 }
           ]}>
             <Ionicons name={icon} size={20} color={colors.subtitle} style={styles.inputIcon} />
@@ -58,53 +73,91 @@ export const ProductInfoSection = ({
               placeholder={isDate ? "DD/MM/AAAA" : ""}
               placeholderTextColor={colors.subtitle}
               maxLength={isDate ? 10 : undefined}
-              keyboardType={isDate || isPrice ? "numeric" : "default"}
+              keyboardType={isDate || isPrice ? "numeric" : keyboardType}
               multiline={multiline}
             />
           </View>
         ) : (
-          <Text style={[styles.value, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F8FAFC' }]}>
-            {isPrice && product.price ? `R$ ${parseFloat(product.price).toFixed(2).replace('.', ',')}` : displayValue}
-          </Text>
+          <View style={styles.valueRow}>
+             <Ionicons name={icon} size={20} color={colors.secondary} style={styles.inputIcon} />
+             <Text style={[styles.valueText, { color: colors.text }]}>
+                {displayValue}
+             </Text>
+          </View>
         )}
       </View>
     );
   };
 
+  const renderMeasureField = (label: string, value: string, key: string) => (
+    <View style={{ flex: 1 }}>
+      <Text style={[styles.label, { fontSize: 10, color: colors.subtitle, marginBottom: 4 }]}>{label} (CM)</Text>
+      {isEditing ? (
+        <TextInput
+          style={[styles.measureInput, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: isDark ? colors.border : '#E2E8F0' }]}
+          value={value}
+          onChangeText={(t) => setMeasures({ ...measures, [key]: t })}
+          keyboardType="numeric"
+          placeholder="0.0"
+          placeholderTextColor={colors.subtitle}
+        />
+      ) : (
+        <Text style={[styles.measureValue, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F8FAFC' }]}>
+          {value || '0'} cm
+        </Text>
+      )}
+    </View>
+  );
+
   return (
-    <View style={[styles.card, { backgroundColor: colors.card }]}>
-      {renderField('Nome do Produto', isEditing ? editData.name : product.name, 'pricetag-outline', 'name')}
-      
-      <View style={styles.row}>
-        <View style={{ flex: 1 }}>
-          {renderField('Marca', isEditing ? editData.brand : product.brand, 'business-outline', 'brand')}
+    <View style={styles.container}>
+      <View style={[styles.card, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionTitle, { color: colors.secondary }]}>Dados do Produto</Text>
+        
+        {renderField('Nome do Item', isEditing ? editData.name : '', 'pricetag-outline', 'name')}
+        
+        <View style={styles.inputGroup}>
+          <Text style={[styles.label, { color: colors.subtitle }]}>Categoria</Text>
+          {isEditing ? (
+            <CategoryPicker
+              selectedId={categoryId}
+              selectedName={categoryName}
+              onSelect={(id, name) => {
+                setCategoryId(id);
+                setCategoryName(name);
+              }}
+            />
+          ) : (
+            <View style={[styles.badge, { backgroundColor: isDark ? colors.inputBg : '#EEF2FF' }]}>
+              <Ionicons name="apps-outline" size={16} color={colors.secondary} />
+              <Text style={[styles.badgeText, { color: colors.secondary }]}>
+                {product.category?.name || 'Sem Categoria'}
+              </Text>
+            </View>
+          )}
         </View>
-        <View style={{ flex: 1 }}>
-          {renderField('Modelo', isEditing ? editData.model : product.model, 'barcode-outline', 'model')}
+
+        {renderField('Marca', isEditing ? editData.brand : '', 'business-outline', 'brand')}
+        {renderField('Modelo', isEditing ? editData.model : '', 'barcode-outline', 'model')}
+        
+        {/* Usamos flags explícitas para Data e Preço */}
+        {renderField('Data de Compra', purchaseDate, 'calendar-outline', undefined, true, false)}
+        {renderField('Valor Estimado', editData.price?.toString(), 'cash-outline', undefined, false, true)}
+
+        <View style={styles.inputGroup}>
+          <Text style={[styles.label, { color: colors.subtitle }]}>Dimensões do Item</Text>
+          <View style={styles.row}>
+            {renderMeasureField('ALTURA', measures.height, 'height')}
+            {renderMeasureField('LARGURA', measures.width, 'width')}
+            {renderMeasureField('PROFUND.', measures.depth, 'depth')}
+          </View>
         </View>
       </View>
 
-      <View style={styles.inputGroup}>
-        <Text style={[styles.label, { color: colors.subtitle }]}>Categoria</Text>
-        {isEditing ? (
-          <CategoryPicker
-            selectedId={categoryId}
-            selectedName={categoryName}
-            onSelect={(id, name) => {
-              setCategoryId(id);
-              setCategoryName(name);
-            }}
-          />
-        ) : (
-          <Text style={[styles.value, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F8FAFC' }]}>
-            {product.category?.name || '---'}
-          </Text>
-        )}
+      <View style={[styles.card, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionTitle, { color: colors.secondary }]}>Notas e Observações</Text>
+        {renderField('Comentários', isEditing ? editData.notes : '', 'document-text-outline', 'notes', false, false, true)}
       </View>
-      {renderField('Data de Compra', isEditing ? purchaseDate : purchaseDate, 'calendar-outline', undefined, false, true)}
-      {renderField('Valor Estimado', isEditing ? editData.price?.toString() : '', 'cash-outline', undefined, false, false, true)}
-      {renderField('Notas / Observações', isEditing ? editData.notes : product.notes, 'document-text-outline', 'notes', false, false, false, true)}
     </View>
   );
 };
-
