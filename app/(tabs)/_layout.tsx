@@ -1,12 +1,16 @@
 import { Tabs, useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
+import { View, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import { useAuth } from '../../context/auth-context';
 import { useTheme } from '../../context/theme-context';
+import { useResponsive } from '../../hooks/use-responsive';
 
 export default function TabLayout() {
   const { token } = useAuth();
   const { colors, isDark } = useTheme();
+  const { isTablet, tabBarHorizontalPadding } = useResponsive();
   const router = useRouter();
 
   // Vigia o token: se sumir (Logout), expulsa para a tela de login
@@ -22,48 +26,50 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.secondary,
         tabBarInactiveTintColor: colors.subtitle,
         headerShown: false,
+        tabBarShowLabel: true,
+        tabBarLabelPosition: 'below-icon', // Força ícone em cima e texto embaixo em tudo
         tabBarStyle: {
-          height: 85,
-          paddingBottom: 25,
-          paddingTop: 10,
-          borderTopWidth: 1,
-          borderTopColor: isDark ? colors.border : '#F1F5F9',
+          height: isTablet ? 85 : (Platform.OS === 'ios' ? 90 : 70), 
           backgroundColor: colors.card,
+          borderTopWidth: 1,
+          borderTopColor: isDark ? 'rgba(255, 255, 255, 0.1)' : '#E2E8F0',
+          paddingHorizontal: isTablet ? tabBarHorizontalPadding : 0,
+          paddingBottom: isTablet ? 15 : (Platform.OS === 'ios' ? 30 : 12),
+          paddingTop: 8,
           elevation: 0,
-          shadowOpacity: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '700',
+          marginTop: 4,
         },
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Início',
-          tabBarIcon: ({ color }) => <Ionicons size={24} name="grid" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons size={24} name={focused ? "grid" : "grid-outline"} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="create"
         options={{
           title: 'Adicionar',
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color, focused }) => (
             <View style={{
-              backgroundColor: colors.secondary,
-              width: 50,
-              height: 50,
-              borderRadius: 25,
+              backgroundColor: focused ? colors.secondary : 'transparent',
+              width: 48,
+              height: 28,
+              borderRadius: 14,
               justifyContent: 'center',
               alignItems: 'center',
-              marginTop: -20, // Levanta o botão para destaque
-              shadowColor: colors.secondary,
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 5,
+              borderWidth: focused ? 0 : 1.5,
+              borderColor: color,
+              marginBottom: -2,
             }}>
-              <Ionicons size={32} name="add" color={colors.white} />
+              <Ionicons size={20} name="add" color={focused ? colors.white : color} />
             </View>
           ),
         }}
@@ -72,12 +78,11 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Ajustes',
-          tabBarIcon: ({ color }) => <Ionicons size={24} name="options-outline" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons size={24} name={focused ? "options" : "options-outline"} color={color} />
+          ),
         }}
       />
     </Tabs>
   );
 }
-
-import { Ionicons } from '@expo/vector-icons';
-import { View } from 'react-native';

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, StyleSheet, Text, TouchableOpacity, View, Pressable, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/theme-context';
+import { useResponsive } from '../../hooks/use-responsive';
 
 interface ImagePickerModalProps {
   visible: boolean;
@@ -12,6 +13,7 @@ interface ImagePickerModalProps {
 
 export function ImagePickerModal({ visible, onClose, onCamera, onLibrary }: ImagePickerModalProps) {
   const { colors, isDark } = useTheme();
+  const { isTablet } = useResponsive();
   const [pendingAction, setPendingAction] = useState<'camera' | 'library' | null>(null);
 
   // No iOS, esperamos o modal fechar completamente antes de abrir a câmera/galeria
@@ -39,13 +41,17 @@ export function ImagePickerModal({ visible, onClose, onCamera, onLibrary }: Imag
     <Modal
       transparent
       visible={visible}
-      animationType="slide"
+      animationType={isTablet ? "fade" : "slide"}
       onRequestClose={onClose}
-      onDismiss={handleDismiss} // Evento crucial para iOS
+      onDismiss={handleDismiss}
     >
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <View style={[styles.content, { backgroundColor: colors.card }]}>
-          <View style={[styles.handle, { backgroundColor: isDark ? '#334155' : '#E2E8F0' }]} />
+      <Pressable style={[styles.overlay, isTablet && styles.overlayTablet]} onPress={onClose}>
+        <View style={[
+          styles.content, 
+          { backgroundColor: colors.card },
+          isTablet && styles.contentTablet
+        ]}>
+          <View style={[styles.handle, { backgroundColor: isDark ? '#334155' : '#E2E8F0' }, isTablet && { display: 'none' }]} />
           
           <Text style={[styles.title, { color: colors.text }]}>Selecionar Imagem</Text>
           <Text style={[styles.subtitle, { color: colors.subtitle }]}>Escolha como deseja adicionar a foto ao Gatinho Organizador.</Text>
@@ -87,12 +93,23 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
   },
+  overlayTablet: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
   content: {
+    width: '100%',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     padding: 24,
     paddingBottom: 40,
     alignItems: 'center',
+  },
+  contentTablet: {
+    maxWidth: 500,
+    borderRadius: 32,
+    paddingBottom: 24,
   },
   handle: {
     width: 40,

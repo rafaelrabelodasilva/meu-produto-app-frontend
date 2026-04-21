@@ -15,13 +15,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useTheme } from '../../context/theme-context';
 import { useToast } from '../../context/toast-context';
+import { useResponsive } from '../../hooks/use-responsive';
 import { categoriesApi } from '../../services/api';
 import { ConfirmModal } from '../../components/ui/confirm-modal';
-import { styles } from './_categories.styles';
+import { styles } from '../../styles/categories.styles';
 
 export default function CategoriesScreen() {
   const { colors, isDark } = useTheme();
   const { showToast } = useToast();
+  const { isTablet } = useResponsive();
   
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

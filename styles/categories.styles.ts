@@ -3,13 +3,16 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
+    alignItems: 'center',
   },
   header: {
+    width: '100%',
+    maxWidth: 700,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 24,
-    marginBottom: 24,
+    paddingTop: 60,
+    paddingBottom: 24,
   },
   backBtn: {
     marginRight: 16,
@@ -19,6 +22,8 @@ export const styles = StyleSheet.create({
     fontWeight: '800',
   },
   createBox: {
+    width: '100%',
+    maxWidth: 700,
     flexDirection: 'row',
     paddingHorizontal: 24,
     gap: 12,
@@ -45,6 +50,8 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   list: {
+    width: '100%',
+    maxWidth: 700,
     paddingHorizontal: 24,
     paddingBottom: 40,
   },

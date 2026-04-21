@@ -12,9 +12,41 @@ export const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 60,
   },
+  headerWrapper: {
+    width: '100%',
+    maxWidth: 1400,
+    alignSelf: 'center',
+  },
+  responsiveLayout: {
+    flex: 1,
+    width: '100%',
+  },
+  tabletLayout: {
+    flexDirection: 'row',
+    maxWidth: 1400,
+    alignSelf: 'center',
+    paddingHorizontal: 24,
+    gap: 20,
+  },
+  galleryWrapper: {
+    width: '100%',
+  },
+  tabletGallery: {
+    width: '45%',
+    marginTop: 20,
+  },
+  infoWrapper: {
+    width: '100%',
+  },
+  tabletInfo: {
+    width: '55%',
+  },
   content: {
     paddingHorizontal: 24,
     marginBottom: 20,
+  },
+  footerWrapper: {
+    paddingHorizontal: 24,
   },
   dangerZoneWrapper: {
     paddingHorizontal: 24,

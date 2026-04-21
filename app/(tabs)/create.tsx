@@ -16,16 +16,18 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../context/auth-context';
 import { useToast } from '../../context/toast-context';
 import { useTheme } from '../../context/theme-context';
+import { useResponsive } from '../../hooks/use-responsive';
 import { ImagePickerModal } from '../../components/ui/image-picker-modal';
 import { CategoryPicker } from '../../components/product/CategoryPicker';
 import { productsApi } from '../../services/api';
 import { parseBRDateToISO, formatDate, formatCurrency } from '../../services/utils';
-import { styles } from './create.styles';
+import { styles } from '../../styles/create.styles';
 
 export default function CreateProductScreen() {
   const { token, signOut } = useAuth();
   const { showToast } = useToast();
   const { colors, isDark } = useTheme();
+  const { isTablet } = useResponsive();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   

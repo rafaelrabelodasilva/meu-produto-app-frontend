@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/theme-context';
+import { useResponsive } from '../../hooks/use-responsive';
 
 interface ProductFooterActionsProps {
   isEditing: boolean;
@@ -19,9 +20,10 @@ export const ProductFooterActions = ({
   onSave,
 }: ProductFooterActionsProps) => {
   const { colors, isDark } = useTheme();
+  const { isTablet } = useResponsive();
 
   return (
-    <View style={styles.footer}>
+    <View style={[styles.footer, isTablet && styles.footerTablet]}>
       {isEditing ? (
         <View style={styles.editActions}>
           <TouchableOpacity 
@@ -64,6 +66,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     marginTop: 8,
   },
+  footerTablet: {
+    maxWidth: 600,
+    alignSelf: 'center',
+    width: '100%',
+  },
   editModeButton: {
     height: 52,
     borderRadius: 26,
@@ -71,7 +78,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 8,
-    width: '60%',
+    width: '100%',
+    maxWidth: 400,
     alignSelf: 'center',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,

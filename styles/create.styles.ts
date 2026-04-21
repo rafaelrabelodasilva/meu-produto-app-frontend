@@ -8,12 +8,15 @@ export const styles = StyleSheet.create({
     padding: 24,
     paddingTop: 60,
     paddingBottom: 40,
+    alignItems: 'center',
   },
   header: {
     marginBottom: 32,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: '100%',
+    maxWidth: 700,
   },
   headerInfo: {
     flex: 1,
@@ -34,6 +37,8 @@ export const styles = StyleSheet.create({
   form: {
     gap: 20,
     marginBottom: 40,
+    width: '100%',
+    maxWidth: 700,
   },
   sectionTitle: {
     fontSize: 20,
@@ -80,6 +85,8 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 6,
+    width: '100%',
+    maxWidth: 700,
   },
   saveButton: {},
   buttonText: {

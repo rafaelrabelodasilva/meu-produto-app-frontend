@@ -13,13 +13,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/auth-context';
 import { useToast } from '../../context/toast-context';
 import { useTheme } from '../../context/theme-context';
+import { useResponsive } from '../../hooks/use-responsive';
 import { ConfirmModal } from '../../components/ui/confirm-modal';
 import { authApi, userApi, apiFetch } from '../../services/api';
+import { styles } from '../../styles/settings.styles';
 
 export default function ProfileScreen() {
   const { token, signOut } = useAuth();
   const { showToast } = useToast();
   const { colors, isDark, themeMode, setThemeMode } = useTheme();
+  const { isTablet } = useResponsive();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   
@@ -275,157 +278,3 @@ export default function ProfileScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 20,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: '800',
-  },
-  kittyHeader: {
-    width: 60,
-    height: 60,
-  },
-  profileCard: {
-    margin: 24,
-    padding: 24,
-    borderRadius: 32,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.05,
-    shadowRadius: 20,
-    elevation: 5,
-  },
-  avatarContainer: {
-    marginBottom: 16,
-  },
-  userName: {
-    fontSize: 20,
-    fontWeight: '800',
-    marginBottom: 4,
-  },
-  userEmail: {
-    fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 12,
-  },
-  editBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    gap: 4,
-  },
-  editBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  editProfileForm: {
-    width: '100%',
-    gap: 12,
-    marginTop: 8,
-  },
-  editInput: {
-    height: 48,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  editProfileActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  smallButton: {
-    flex: 1,
-    height: 44,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  smallButtonText: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  section: {
-    paddingHorizontal: 24,
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    marginBottom: 12,
-    marginLeft: 4,
-  },
-  themeSwitcher: {
-    flexDirection: 'row',
-    padding: 8,
-    borderRadius: 20,
-    gap: 8,
-  },
-  themeOption: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    borderRadius: 14,
-    gap: 8,
-  },
-  themeText: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 20,
-    marginBottom: 12,
-  },
-  iconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  menuText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  footer: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  versionText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-});

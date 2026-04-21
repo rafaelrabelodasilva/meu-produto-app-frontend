@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/theme-context';
+import { useResponsive } from '../../hooks/use-responsive';
 import { getImageUrl } from '../../services/api';
 import { ImageFullscreenModal } from '../ui/image-fullscreen-modal';
-
-const { width } = Dimensions.get('window');
 
 interface ProductGalleryProps {
   product: any;
@@ -15,14 +14,15 @@ interface ProductGalleryProps {
   onPickImage: (type: 'product' | 'label') => void;
 }
 
-export const ProductGallery = ({ 
-  product, 
-  isEditing, 
-  newImageUri, 
-  newLabelUri, 
-  onPickImage 
+export const ProductGallery = ({
+  product,
+  isEditing,
+  newImageUri,
+  newLabelUri,
+  onPickImage
 }: ProductGalleryProps) => {
   const { colors, isDark } = useTheme();
+  const { width, isTablet } = useResponsive();
   const [fullscreenUri, setFullscreenUri] = useState<string | null>(null);
 
   const productImage = product?.images?.find((img: any) => img.type === 'PRODUCT');
@@ -37,13 +37,15 @@ export const ProductGallery = ({
     }
   };
 
+  // Altura dinâmica para não "explodir" no tablet
+  const heroHeight = isTablet ? 450 : width * 0.8;
   return (
     <View style={styles.container}>
       {/* Imagem Principal do Produto */}
       <TouchableOpacity 
         activeOpacity={isEditing ? 1 : 0.7}
         onPress={() => handleImagePress(mainUri)}
-        style={[styles.mainCard, { backgroundColor: isDark ? colors.card : '#F1F5F9', shadowColor: colors.secondary }]}
+        style={[styles.mainCard, { height: heroHeight, backgroundColor: isDark ? colors.card : '#F1F5F9', shadowColor: colors.secondary }]}
       >
         {mainUri ? (
           <Image source={{ uri: mainUri }} style={styles.heroImage} resizeMode="cover" />
@@ -106,7 +108,6 @@ const styles = StyleSheet.create({
   },
   mainCard: {
     width: '100%',
-    height: width * 0.8,
     borderRadius: 32,
     overflow: 'hidden',
     elevation: 8,

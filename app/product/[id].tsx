@@ -12,6 +12,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import { useTheme } from '../../context/theme-context';
+import { useResponsive } from '../../hooks/use-responsive';
 
 // Components
 import { ConfirmModal } from '../../components/ui/confirm-modal';
@@ -23,7 +24,7 @@ import { ProductFooterActions } from '../../components/product/ProductFooterActi
 
 // Hook
 import { useProductDetail } from '../../hooks/use-product-detail';
-import { styles } from './product-detail.styles';
+import { styles } from '../../styles/product-detail.styles';
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -58,6 +59,8 @@ export default function ProductDetailScreen() {
     confirmDelete,
   } = useProductDetail(id as string);
 
+  const { width, isTablet } = useResponsive();
+
   if (loading) {
     return (
       <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
@@ -72,55 +75,65 @@ export default function ProductDetailScreen() {
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <ProductHeader title={isEditing ? 'Editar Item' : 'Detalhes'} />
-
-        <ProductGallery 
-          product={product}
-          isEditing={isEditing}
-          newImageUri={newImageUri}
-          newLabelUri={newLabelUri}
-          onPickImage={pickImage}
-        />
-
-        <View style={styles.content}>
-          <ProductInfoSection
-            product={product}
-            isEditing={isEditing}
-            editData={editData}
-            categoryId={categoryId}
-            categoryName={categoryName}
-            purchaseDate={purchaseDate}
-            measures={measures}
-            setEditData={setEditData}
-            setCategoryId={setCategoryId}
-            setCategoryName={setCategoryName}
-            setPurchaseDate={setPurchaseDate}
-            setMeasures={setMeasures}
-          />
+        <View style={styles.headerWrapper}>
+          <ProductHeader title={isEditing ? 'Editar Item' : 'Detalhes'} />
         </View>
 
-        <ProductFooterActions 
-          isEditing={isEditing}
-          saving={saving}
-          onEdit={() => toggleEditing(true)}
-          onCancel={() => toggleEditing(false)}
-          onSave={handleUpdate}
-        />
-
-        {!isEditing && (
-          <View style={styles.dangerZoneWrapper}>
-            <View style={styles.dangerZone}>
-              <Text style={[styles.dangerTitle, { color: colors.subtitle }]}>Zona de Perigo</Text>
-              <TouchableOpacity 
-                style={[styles.dangerButton, { borderColor: 'rgba(239, 68, 68, 0.3)' }]} 
-                onPress={() => setDeleteModalVisible(true)}
-              >
-                <Ionicons name="trash-outline" size={20} color={colors.error} />
-                <Text style={[styles.dangerButtonText, { color: colors.error }]}>Remover este Item</Text>
-              </TouchableOpacity>
-            </View>
+        <View style={[styles.responsiveLayout, isTablet && styles.tabletLayout]}>
+          <View style={[styles.galleryWrapper, isTablet && styles.tabletGallery]}>
+            <ProductGallery 
+              product={product}
+              isEditing={isEditing}
+              newImageUri={newImageUri}
+              newLabelUri={newLabelUri}
+              onPickImage={pickImage}
+            />
           </View>
-        )}
+
+          <View style={[styles.infoWrapper, isTablet && styles.tabletInfo]}>
+            <View style={styles.content}>
+              <ProductInfoSection
+                product={product}
+                isEditing={isEditing}
+                editData={editData}
+                categoryId={categoryId}
+                categoryName={categoryName}
+                purchaseDate={purchaseDate}
+                measures={measures}
+                setEditData={setEditData}
+                setCategoryId={setCategoryId}
+                setCategoryName={setCategoryName}
+                setPurchaseDate={setPurchaseDate}
+                setMeasures={setMeasures}
+              />
+            </View>
+
+            <View style={styles.footerWrapper}>
+              <ProductFooterActions 
+                isEditing={isEditing}
+                saving={saving}
+                onEdit={() => toggleEditing(true)}
+                onCancel={() => toggleEditing(false)}
+                onSave={handleUpdate}
+              />
+            </View>
+
+            {!isEditing && (
+              <View style={styles.dangerZoneWrapper}>
+                <View style={styles.dangerZone}>
+                  <Text style={[styles.dangerTitle, { color: colors.subtitle }]}>Zona de Perigo</Text>
+                  <TouchableOpacity 
+                    style={[styles.dangerButton, { borderColor: 'rgba(239, 68, 68, 0.3)' }]} 
+                    onPress={() => setDeleteModalVisible(true)}
+                  >
+                    <Ionicons name="trash-outline" size={20} color={colors.error} />
+                    <Text style={[styles.dangerButtonText, { color: colors.error }]}>Remover este Item</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
       </ScrollView>
 
       <ConfirmModal
