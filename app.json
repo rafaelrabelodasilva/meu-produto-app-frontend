@@ -1,16 +1,18 @@
 {
   "expo": {
-    "name": "meu-produto-app-frontend",
-    "slug": "meu-produto-app-frontend",
+    "name": "Meu Produto",
+    "slug": "meu-produto-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "meuprodutoappfrontend",
+    "scheme": "meu-produto-app",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rafael.meuproduto"
     },
     "android": {
+      "package": "com.rafael.meuproduto",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -42,6 +44,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bded2fdd-60b7-41f5-a180-212213aab7cc"
+      }
     }
   }
 }
