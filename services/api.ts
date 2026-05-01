@@ -14,9 +14,11 @@ export const AUTH_EVENTS = {
 const debuggerHost = Constants.expoConfig?.hostUri;
 const localhost = debuggerHost?.split(':').shift();
 
-export const API_URL = localhost 
+// Prioriza a URL de produção definida em variável de ambiente (EAS Build)
+// Caso contrário, tenta o IP local (Dev) ou localhost
+export const API_URL = process.env.EXPO_PUBLIC_API_URL || (localhost 
   ? `http://${localhost}:3000` 
-  : 'http://localhost:3000';
+  : 'http://localhost:3000');
 
 export const getImageUrl = (url: string | undefined) => 
   url ? `${API_URL}/uploads/${url}?t=${new Date().getTime()}` : null;
@@ -37,7 +39,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
     headers['Authorization'] = `Bearer ${currentToken}`;
   }
 
-  console.log(`Fazendo fetch em: ${API_URL}${endpoint}`);
+    console.log(`Fazendo fetch em: ${API_URL}${endpoint}`);
   
   try {
     let response = await fetch(`${API_URL}${endpoint}`, {
@@ -76,7 +78,6 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
             });
           } else {
             console.warn('Falha ao renovar token com refresh token.');
-            // Se o refresh falhar, limpamos os tokens para forçar logout no app
             await SecureStore.deleteItemAsync(TOKEN_KEY);
             await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
             DeviceEventEmitter.emit(AUTH_EVENTS.TOKEN_CLEARED);
@@ -85,15 +86,21 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
           console.error('Erro durante tentativa de refresh:', refreshErr);
         }
       } else {
-        // Se nem tem refresh token, limpa tudo e desloga
         DeviceEventEmitter.emit(AUTH_EVENTS.TOKEN_CLEARED);
       }
     }
 
-    const data = await response.json();
+    const contentType = response.headers.get('content-type');
+    let data;
+
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      data = { message: await response.text() };
+    }
 
     if (!response.ok) {
-      console.error('Erro na resposta da API:', data);
+      console.error(`Erro na API (${response.status}):`, data);
       throw new Error(data.message || 'Erro na requisição');
     }
 
