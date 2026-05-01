@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from '../utils/storage';
 import { DeviceEventEmitter } from 'react-native';
 
 const TOKEN_KEY = 'user_token';
@@ -33,7 +33,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
     ...options.headers,
   };
 
-  const currentToken = token || (await SecureStore.getItemAsync(TOKEN_KEY));
+  const currentToken = token || (await storage.getItem(TOKEN_KEY));
 
   if (currentToken) {
     headers['Authorization'] = `Bearer ${currentToken}`;
@@ -50,7 +50,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
     // Se der 401 Unauthorized e não for uma rota de auth básica, tentamos o refresh
     if (response.status === 401 && endpoint !== '/auth/login' && endpoint !== '/auth/refresh') {
       console.log('Token expirado (401), tentando refresh...');
-      const refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
+      const refreshToken = await storage.getItem(REFRESH_TOKEN_KEY);
       
       if (refreshToken) {
         try {
@@ -65,7 +65,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
             const newAccessToken = refreshData.access_token;
             
             console.log('Token renovado com sucesso!');
-            await SecureStore.setItemAsync(TOKEN_KEY, newAccessToken);
+            await storage.setItem(TOKEN_KEY, newAccessToken);
             
             // Notifica o AuthContext sobre o novo token
             DeviceEventEmitter.emit(AUTH_EVENTS.TOKEN_REFRESHED, newAccessToken);
@@ -78,8 +78,8 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
             });
           } else {
             console.warn('Falha ao renovar token com refresh token.');
-            await SecureStore.deleteItemAsync(TOKEN_KEY);
-            await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
+            await storage.deleteItem(TOKEN_KEY);
+            await storage.deleteItem(REFRESH_TOKEN_KEY);
             DeviceEventEmitter.emit(AUTH_EVENTS.TOKEN_CLEARED);
           }
         } catch (refreshErr) {
