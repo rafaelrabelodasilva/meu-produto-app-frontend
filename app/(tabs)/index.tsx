@@ -13,16 +13,10 @@ import {
 import { useAuth } from '../../context/auth-context';
 import { useTheme } from '../../context/theme-context';
 import { useResponsive } from '../../hooks/use-responsive';
-import { productsApi } from '../../services/api';
+import { productsApi, getImageUrl } from '../../services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, router } from 'expo-router';
 import { styles } from '../../styles/dashboard.styles';
-
-// Importar Constants para pegar o IP dinâmico
-import Constants from 'expo-constants';
-const debuggerHost = Constants.expoConfig?.hostUri;
-const localhost = debuggerHost?.split(':').shift() || '192.168.0.15';
-const BASE_URL = `http://${localhost}:3000`;
 
 export default function DashboardScreen() {
   const { token } = useAuth();
@@ -107,7 +101,7 @@ export default function DashboardScreen() {
       <View style={[styles.imageContainer, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', height: cardWidth }]}>
         {item.images && item.images.length > 0 ? (
           <Image 
-            source={{ uri: `${BASE_URL}/uploads/${item.images[0].url}?t=${new Date().getTime()}` }} 
+            source={{ uri: getImageUrl(item.images[0].url) || '' }} 
             style={styles.productImage} 
           />
         ) : (

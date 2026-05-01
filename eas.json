@@ -21,7 +21,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://meu-app.onrender.com"
+        "EXPO_PUBLIC_API_URL": "https://meu-produto-app-backend.onrender.com"
       }
     }
   },
