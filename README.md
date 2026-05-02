@@ -79,4 +79,4 @@ Escaneie o QR Code que aparecer no terminal com a câmera do celular (iOS) ou pe
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/rafaelrabelodasilva/)
 
 ---
-*Gerencie seu lar com a patinha do Gatinho Organizador 🐾*
+*Gerencie seu lar com o Gatinho Organizador 🐾 🐱*
