@@ -148,32 +148,42 @@ export function useProductDetail(id: string) {
 
   const uploadNewImage = async (uri: string, type: string) => {
     const formData = new FormData();
-    const uriParts = uri.split('.');
-    const fileType = uriParts[uriParts.length - 1];
-
-    formData.append('files', {
-      uri,
-      name: `photo.${fileType}`,
-      type: `image/${fileType}`,
-    } as any);
-
     formData.append('type', type);
+
+    if (Platform.OS === 'web') {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      formData.append('files', blob, `photo_${type.toLowerCase()}.jpg`);
+    } else {
+      const uriParts = uri.split('.');
+      const fileType = uriParts[uriParts.length - 1];
+      formData.append('files', {
+        uri,
+        name: `photo.${fileType}`,
+        type: `image/${fileType}`,
+      } as any);
+    }
 
     return productsApi.uploadImage(id, formData);
   };
 
   const replaceImage = async (imageId: string, uri: string, type: string) => {
     const formData = new FormData();
-    const uriParts = uri.split('.');
-    const fileType = uriParts[uriParts.length - 1];
-
-    formData.append('file', {
-      uri,
-      name: `photo.${fileType}`,
-      type: `image/${fileType}`,
-    } as any);
-    
     formData.append('type', type);
+
+    if (Platform.OS === 'web') {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      formData.append('files', blob, `photo_${type.toLowerCase()}.jpg`);
+    } else {
+      const uriParts = uri.split('.');
+      const fileType = uriParts[uriParts.length - 1];
+      formData.append('files', {
+        uri,
+        name: `photo.${fileType}`,
+        type: `image/${fileType}`,
+      } as any);
+    }
 
     return productsApi.updateImage(id, imageId, formData);
   };

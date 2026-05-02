@@ -26,7 +26,8 @@ export const getImageUrl = (url: string | undefined) =>
 console.log('API_URL configurada para:', API_URL);
 
 export async function apiFetch(endpoint: string, options: RequestInit = {}, token?: string | null) {
-  const isFormData = options.body instanceof FormData;
+  const isFormData = options.body instanceof FormData || 
+    (options.body && typeof options.body === 'object' && options.body.constructor.name === 'FormData');
   
   const headers: HeadersInit = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),

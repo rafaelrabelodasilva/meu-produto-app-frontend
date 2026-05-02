@@ -120,6 +120,7 @@ export default function CreateProductScreen() {
 
   const uploadImage = async (productId: string, uri: string, type: string) => {
     const fd = new FormData();
+    fd.append('type', type);
     
     if (Platform.OS === 'web') {
       // No Web, precisamos converter a URI em Blob
@@ -137,7 +138,6 @@ export default function CreateProductScreen() {
       } as any);
     }
     
-    fd.append('type', type);
     return productsApi.uploadImage(productId, fd);
   };
 
