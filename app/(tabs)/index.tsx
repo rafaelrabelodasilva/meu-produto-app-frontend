@@ -111,8 +111,27 @@ export default function DashboardScreen() {
         )}
       </View>
       <View style={styles.cardInfo}>
-        <Text style={[styles.productName, { color: colors.text }]} numberOfLines={1}>{item.name}</Text>
-        <Text style={[styles.productBrand, { color: colors.subtitle }]} numberOfLines={1}>{item.brand || 'Sem marca'}</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.productName, { color: colors.text }]} numberOfLines={1}>{item.name}</Text>
+            <Text style={[styles.productBrand, { color: colors.subtitle }]} numberOfLines={1}>{item.brand || 'Sem marca'}</Text>
+          </View>
+          {item.user && (
+            <View style={{ 
+              width: 24, 
+              height: 24, 
+              borderRadius: 12, 
+              backgroundColor: '#FFD164', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              marginLeft: 4
+            }}>
+              <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0042cf' }}>
+                {item.user.firstName[0]}
+              </Text>
+            </View>
+          )}
+        </View>
         <View style={styles.measurementsContainer}>
           <Ionicons name="resize-outline" size={14} color={colors.secondary} />
           <Text style={[styles.measurementsText, { color: colors.secondary }]}>

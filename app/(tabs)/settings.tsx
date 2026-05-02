@@ -227,6 +227,20 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.subtitle }]}>Colaboração</Text>
+          <TouchableOpacity 
+            style={[styles.menuItem, { backgroundColor: colors.card }]} 
+            onPress={() => router.push('/family')}
+          >
+            <View style={[styles.iconWrapper, { backgroundColor: isDark ? colors.inputBg : '#EEF2FF' }]}>
+              <Ionicons name="people-outline" size={22} color={colors.secondary} />
+            </View>
+            <Text style={[styles.menuText, { color: colors.text }]}>Minha Família</Text>
+            <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.subtitle }]}>Sessão</Text>
 
           <TouchableOpacity style={[styles.menuItem, { backgroundColor: colors.card }]} onPress={handleLogout}>
