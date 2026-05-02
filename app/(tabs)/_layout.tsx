@@ -58,19 +58,7 @@ export default function TabLayout() {
         options={{
           title: 'Adicionar',
           tabBarIcon: ({ color, focused }) => (
-            <View style={{
-              backgroundColor: focused ? colors.secondary : 'transparent',
-              width: 48,
-              height: 28,
-              borderRadius: 14,
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderWidth: focused ? 0 : 1.5,
-              borderColor: color,
-              marginBottom: -2,
-            }}>
-              <Ionicons size={20} name="add" color={focused ? colors.white : color} />
-            </View>
+            <Ionicons size={26} name={focused ? "add-circle" : "add-circle-outline"} color={color} />
           ),
         }}
       />
