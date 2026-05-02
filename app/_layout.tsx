@@ -20,6 +20,7 @@ function MainLayout() {
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="product/[id]" />
+        <Stack.Screen name="family/index" />
       </Stack>
       <StatusBar style={isDark ? 'light' : 'dark'} />
     </NavThemeProvider>
