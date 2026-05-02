@@ -4,11 +4,17 @@ A interface vibrante e amigável do **Meu Produto**, o app que transforma a orga
 
 ## 🚀 Sobre o Projeto
 
-O **Meu Produto** é o assistente essencial para a gestão do seu espaço. Desenvolvido para mobile e web, o app foca em usabilidade real: você registra as dimensões precisas de cada item, guarda fotos de etiquetas técnicas para consulta rápida e compartilha tudo com sua família para que você nunca mais tenha dúvidas se aquele novo móvel ou eletrodoméstico caberá no seu lar.
+O **Meu Produto** é o assistente essencial para você nunca mais esquecer o tamanho das suas coisas. Desenvolvido para mobile e web, o app foca em usabilidade real: você registra as dimensões e especificações de cada item e compartilha com sua família — para que, na hora de comprar um jogo de cama, uma toalha de mesa ou uma lâmpada específica, a resposta esteja sempre na palma da sua mão.
 
 ### 💡 Por que ele foi feito?
 
-Para resolver o dilema do "será que cabe?". Quantas vezes você esteve em uma loja e não lembrou se um novo eletrodoméstico caberia no nicho da cozinha, ou se um tapete serviria na sala? O **Meu Produto** elimina o "acho que sim" da equação, fornecendo dados técnicos reais na palma da sua mão, facilitando decisões de compra e reformas.
+Para acabar com o "será que serve?" e as idas e voltas às lojas. O **Meu Produto** resolve problemas práticos do dia a dia:
+- **Qual o tamanho da minha cama** para comprar o jogo de lençol certo?
+- **Qual a medida da minha mesa** para escolher a toalha perfeita?
+- **Qual o modelo daquela lâmpada elegante** do quarto para comprar uma reserva?
+- **Qual o tamanho da máquina de lavar** para comprar a capa de proteção ideal?
+
+Ele elimina a adivinhação, fornecendo dados técnicos e fotos de etiquetas instantaneamente, facilitando compras e a manutenção do seu lar.
 
 ## ✨ Funcionalidades Principais
 
