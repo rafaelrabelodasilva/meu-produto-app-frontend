@@ -295,27 +295,31 @@ export default function FamilyScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.text }]}>Minha Família</Text>
+          <View style={styles.headerTop}>
+            <View style={styles.titleContainer}>
+              <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <Ionicons name="arrow-back" size={24} color={colors.text} />
+              </TouchableOpacity>
+              <Text style={[styles.title, { color: colors.text }]}>Minha Família</Text>
+            </View>
+            <Image 
+              source={require('../../assets/kitty_on_computer.png')} 
+              style={styles.kittyHeader}
+              resizeMode="contain"
+            />
+          </View>
         </View>
 
-        <View style={styles.content}>
+        <View style={styles.responsiveContent}>
           {families.length === 0 ? (
             <View style={styles.emptyState}>
-              <Image 
-                source={require('../../assets/kitty_on_computer.png')} 
-                style={styles.emptyImage}
-                resizeMode="contain"
-              />
               <Text style={[styles.emptyText, { color: colors.text }]}>
                 Você ainda não faz parte de nenhuma família.
               </Text>
               <Text style={[styles.emptySubtext, { color: colors.subtitle }]}>
-                Crie uma casa para organizar seus itens com outras pessoas ou entre em uma existente.
+                Crie um grupo para organizar seus itens com outras pessoas ou entre em um existente.
               </Text>
             </View>
           ) : (
@@ -324,26 +328,29 @@ export default function FamilyScreen() {
               renderItem={renderFamilyItem}
               keyExtractor={(item) => item.family.id}
               numColumns={numColumns}
-              key={numColumns} // Força re-render ao mudar layout
+              key={numColumns}
               scrollEnabled={false}
-              columnWrapperStyle={numColumns > 1 ? { gap: 20 } : undefined}
+              columnWrapperStyle={numColumns > 1 ? { gap: 24 } : undefined}
+              contentContainerStyle={styles.familyList}
             />
           )}
 
-          <View style={styles.actions}>
+          <View style={styles.actionsContainer}>
             {!showCreateForm && !showJoinForm && (
               <View style={styles.buttonStack}>
                 <TouchableOpacity 
                   style={[styles.primaryButton, { backgroundColor: colors.secondary }]}
                   onPress={() => setShowCreateForm(true)}
                 >
-                  <Text style={styles.buttonText}>Criar Nova Casa</Text>
+                  <Ionicons name="add-circle-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
+                  <Text style={styles.buttonText}>Criar Nova Família</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity 
                   style={[styles.secondaryButton, { borderColor: colors.secondary }]}
                   onPress={() => setShowJoinForm(true)}
                 >
+                  <Ionicons name="enter-outline" size={20} color={colors.secondary} style={{ marginRight: 8 }} />
                   <Text style={[styles.secondaryButtonText, { color: colors.secondary }]}>Entrar com Código</Text>
                 </TouchableOpacity>
               </View>
@@ -351,17 +358,17 @@ export default function FamilyScreen() {
 
             {showCreateForm && (
               <View style={[styles.form, { backgroundColor: colors.card }]}>
-                <Text style={[styles.formTitle, { color: colors.text }]}>Nome da Casa</Text>
+                <Text style={[styles.formTitle, { color: colors.text }]}>Nome da Família</Text>
                 <TextInput
                   style={[styles.input, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}
-                  placeholder="Ex: Nossa Casa, Apartamento 42..."
+                  placeholder="Ex: Família Silva, Apartamento 42..."
                   placeholderTextColor={colors.subtitle}
                   value={familyName}
                   onChangeText={setFamilyName}
                 />
                 <View style={styles.formActions}>
                   <TouchableOpacity onPress={() => setShowCreateForm(false)}>
-                    <Text style={{ color: colors.subtitle }}>Cancelar</Text>
+                    <Text style={{ color: colors.subtitle, fontWeight: '600' }}>Cancelar</Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
                     style={[styles.smallButton, { backgroundColor: colors.secondary }]}
@@ -387,7 +394,7 @@ export default function FamilyScreen() {
                 />
                 <View style={styles.formActions}>
                   <TouchableOpacity onPress={() => setShowJoinForm(false)}>
-                    <Text style={{ color: colors.subtitle }}>Cancelar</Text>
+                    <Text style={{ color: colors.subtitle, fontWeight: '600' }}>Cancelar</Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
                     style={[styles.smallButton, { backgroundColor: colors.secondary }]}
@@ -429,103 +436,136 @@ export default function FamilyScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  scrollContent: { paddingBottom: 60, alignItems: 'center' },
   centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   header: {
+    width: '100%',
+    paddingHorizontal: 24,
     paddingTop: 60,
-    paddingHorizontal: 20,
     paddingBottom: 20,
+    alignItems: 'center',
+  },
+  headerTop: {
+    width: '100%',
+    maxWidth: 1000,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  backButton: { marginRight: 15 },
-  title: { fontSize: 24, fontWeight: '800' },
-  content: { paddingHorizontal: 20 },
-  emptyState: { alignItems: 'center', marginTop: 40 },
-  emptyImage: { width: 150, height: 150, marginBottom: 20 },
-  emptyText: { fontSize: 18, fontWeight: '700', textAlign: 'center', marginBottom: 10 },
-  emptySubtext: { fontSize: 14, textAlign: 'center', lineHeight: 20 },
-  familyCard: {
-    padding: 20,
-    borderRadius: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+  backButton: { marginRight: 16 },
+  title: { fontSize: 28, fontWeight: '800' },
+  kittyHeader: { width: 60, height: 60 },
+  responsiveContent: {
+    width: '100%',
+    maxWidth: 1000,
+    paddingHorizontal: 24,
   },
-  familyHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  iconBox: { width: 50, height: 50, borderRadius: 15, justifyContent: 'center', alignItems: 'center', marginRight: 15 },
+  emptyState: { alignItems: 'center', marginTop: 40 },
+  emptyText: { fontSize: 18, fontWeight: '700', textAlign: 'center', marginBottom: 10 },
+  emptySubtext: { fontSize: 14, textAlign: 'center', lineHeight: 22 },
+  familyList: { marginTop: 24 },
+  familyCard: {
+    padding: 24,
+    borderRadius: 32,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.05,
+    shadowRadius: 20,
+    elevation: 4,
+  },
+  familyHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
+  iconBox: { width: 50, height: 50, borderRadius: 16, justifyContent: 'center', alignItems: 'center', marginRight: 16 },
   familyInfo: { flex: 1 },
-  familyName: { fontSize: 18, fontWeight: '700' },
-  memberCount: { fontSize: 14, marginTop: 2 },
-  membersList: { marginBottom: 20 },
-  memberItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  familyName: { fontSize: 20, fontWeight: '800' },
+  memberCount: { fontSize: 14, fontWeight: '600', marginTop: 2 },
+  membersList: { marginBottom: 24 },
+  memberItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 14 },
   memberAvatar: { 
-    width: 36, 
-    height: 36, 
-    borderRadius: 18, 
+    width: 40, 
+    height: 40, 
+    borderRadius: 20, 
     backgroundColor: '#FFD164', 
     justifyContent: 'center', 
     alignItems: 'center',
     marginRight: 12 
   },
   avatarInitial: { fontWeight: 'bold', color: '#0042cf', fontSize: 16 },
-  memberName: { fontSize: 15, fontWeight: '500' },
-  inviteContainer: { marginTop: 10 },
+  memberName: { fontSize: 16, fontWeight: '600' },
+  inviteContainer: { marginTop: 8 },
   codeBox: {
-    padding: 15,
-    borderRadius: 15,
+    padding: 16,
+    borderRadius: 20,
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#E2E8F0',
     borderStyle: 'dashed',
   },
-  inviteLabel: { fontSize: 12, marginBottom: 4 },
+  inviteLabel: { fontSize: 12, fontWeight: '700', textTransform: 'uppercase', marginBottom: 6 },
   codeRow: { flexDirection: 'row', alignItems: 'center' },
-  codeText: { fontSize: 20, fontWeight: '800', letterSpacing: 2, marginRight: 10 },
+  codeText: { fontSize: 22, fontWeight: '900', letterSpacing: 3, marginRight: 12 },
   inviteButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 2,
     borderStyle: 'dashed',
   },
-  inviteButtonText: { marginLeft: 8, fontWeight: '600' },
-  actions: { marginTop: 10 },
-  actionsTablet: { flexDirection: 'row', gap: 20 },
+  inviteButtonText: { marginLeft: 10, fontWeight: '700' },
+  actionsContainer: {
+    marginTop: 20,
+    width: '100%',
+    maxWidth: 450,
+    alignSelf: 'center',
+  },
+  buttonStack: { gap: 16 },
   primaryButton: {
-    padding: 18,
-    borderRadius: 15,
+    flexDirection: 'row',
+    height: 56,
+    borderRadius: 18,
     alignItems: 'center',
-    marginBottom: 15,
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  buttonText: { color: '#FFF', fontWeight: '700', fontSize: 16 },
+  buttonText: { color: '#FFF', fontWeight: '800', fontSize: 16 },
   secondaryButton: {
-    padding: 18,
-    borderRadius: 15,
+    flexDirection: 'row',
+    height: 56,
+    borderRadius: 18,
     alignItems: 'center',
-    borderWidth: 1,
-    marginBottom: 15,
+    justifyContent: 'center',
+    borderWidth: 2,
   },
-  secondaryButtonText: { fontWeight: '700', fontSize: 16 },
-  form: { padding: 20, borderRadius: 20, marginBottom: 20 },
-  formTitle: { fontSize: 16, fontWeight: '700', marginBottom: 10 },
+  secondaryButtonText: { fontWeight: '800', fontSize: 16 },
+  form: { padding: 24, borderRadius: 32, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.05, shadowRadius: 20, elevation: 4 },
+  formTitle: { fontSize: 16, fontWeight: '800', marginBottom: 16 },
   input: {
-    padding: 15,
-    borderRadius: 12,
+    height: 54,
+    paddingHorizontal: 16,
+    borderRadius: 14,
     fontSize: 16,
-    marginBottom: 15,
+    fontWeight: '600',
+    marginBottom: 20,
   },
   editInput: {
     flex: 1,
-    padding: 10,
-    borderRadius: 8,
+    height: 48,
+    paddingHorizontal: 12,
+    borderRadius: 10,
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   formActions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  smallButton: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10 },
+  smallButton: { paddingHorizontal: 24, height: 44, borderRadius: 12, justifyContent: 'center' },
 });
+
