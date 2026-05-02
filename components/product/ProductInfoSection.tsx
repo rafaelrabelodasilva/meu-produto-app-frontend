@@ -97,7 +97,7 @@ export const ProductInfoSection = ({
           style={[styles.measureInput, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: isDark ? colors.border : '#E2E8F0' }]}
           value={value}
           onChangeText={(t) => setMeasures({ ...measures, [key]: t })}
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
           placeholder="0.0"
           placeholderTextColor={colors.subtitle}
         />

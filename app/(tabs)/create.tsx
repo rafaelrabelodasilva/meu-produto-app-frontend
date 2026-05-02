@@ -193,15 +193,15 @@ export default function CreateProductScreen() {
         <View style={styles.row}>
           <View style={{ flex: 1 }}>
             <Text style={[styles.label, { fontSize: 10, color: colors.subtitle, marginBottom: 4, textTransform: 'uppercase' }]}>ALTURA (CM)</Text>
-            <TextInput style={[styles.measureInput, { color: colors.text, backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]} placeholder="0.0" value={formData.height} onChangeText={(text) => setFormData({ ...formData, height: text })} keyboardType="numeric" placeholderTextColor={colors.subtitle} />
+            <TextInput style={[styles.measureInput, { color: colors.text, backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]} placeholder="0.0" value={formData.height} onChangeText={(text) => setFormData({ ...formData, height: text })} keyboardType="decimal-pad" placeholderTextColor={colors.subtitle} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.label, { fontSize: 10, color: colors.subtitle, marginBottom: 4, textTransform: 'uppercase' }]}>LARGURA (CM)</Text>
-            <TextInput style={[styles.measureInput, { color: colors.text, backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]} placeholder="0.0" value={formData.width} onChangeText={(text) => setFormData({ ...formData, width: text })} keyboardType="numeric" placeholderTextColor={colors.subtitle} />
+            <TextInput style={[styles.measureInput, { color: colors.text, backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]} placeholder="0.0" value={formData.width} onChangeText={(text) => setFormData({ ...formData, width: text })} keyboardType="decimal-pad" placeholderTextColor={colors.subtitle} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.label, { fontSize: 10, color: colors.subtitle, marginBottom: 4, textTransform: 'uppercase' }]}>PROFUND. (CM)</Text>
-            <TextInput style={[styles.measureInput, { color: colors.text, backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]} placeholder="0.0" value={formData.depth} onChangeText={(text) => setFormData({ ...formData, depth: text })} keyboardType="numeric" placeholderTextColor={colors.subtitle} />
+            <TextInput style={[styles.measureInput, { color: colors.text, backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]} placeholder="0.0" value={formData.depth} onChangeText={(text) => setFormData({ ...formData, depth: text })} keyboardType="decimal-pad" placeholderTextColor={colors.subtitle} />
           </View>
         </View>
       </View>
