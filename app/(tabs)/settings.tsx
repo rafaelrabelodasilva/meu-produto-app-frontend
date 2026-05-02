@@ -17,6 +17,7 @@ import { useResponsive } from '../../hooks/use-responsive';
 import { ConfirmModal } from '../../components/ui/confirm-modal';
 import { authApi, userApi, apiFetch } from '../../services/api';
 import { styles } from '../../styles/settings.styles';
+import { router } from 'expo-router';
 
 export default function ProfileScreen() {
   const { token, signOut } = useAuth();
