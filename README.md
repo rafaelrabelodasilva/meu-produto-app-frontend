@@ -8,15 +8,15 @@ O **Meu Produto** é mais que um inventário; é o assistente pessoal da sua cas
 
 ### 💡 Por que ele foi feito?
 
-Para resolver o problema de "onde está aquele manual?" ou "será que essa airfryer cabe no nicho da cozinha?". Ele traz transparência para o que a família possui, evitando compras duplicadas e facilitando a manutenção do lar.
+Para resolver o dilema do "será que cabe?". Quantas vezes você esteve em uma loja e não lembrou se um novo eletrodoméstico caberia no nicho da cozinha, ou se um tapete serviria na sala? O **Meu Produto** elimina o "acho que sim" da equação, fornecendo dados técnicos reais na palma da sua mão, facilitando decisões de compra e reformas.
 
 ## ✨ Funcionalidades Principais
 
-- **Dashboard Visual:** Grid adaptativo com cards contendo foto, nome e dimensões.
-- **Cadastro Técnico:** Fluxo guiado para capturar medidas e fotos de etiquetas.
-- **Colaboração Familiar:** Crie uma "Casa", convide membros e veja quem cadastrou cada item.
+- **Dashboard Visual:** Grid adaptativo com cards contendo foto, nome e dimensões principais sempre visíveis.
+- **Cadastro Técnico de Medidas:** Fluxo otimizado com teclado numérico para registrar Altura, Largura e Profundidade com precisão.
+- **Registro de Etiquetas:** Capture fotos de etiquetas técnicas para ter acesso rápido a modelos e especificações sem precisar mover móveis pesados.
+- **Colaboração Familiar:** Uma "Casa" compartilhada onde todos têm acesso às medidas do lar, evitando compras duplicadas ou incompatíveis.
 - **Multi-plataforma:** Experiência consistente em Android, iOS e Web (PWA).
-- **Tema Customizado:** Identidade visual baseada no mascote "Gatinho Organizador".
 
 ## 🛠️ Tecnologias Utilizadas
 
