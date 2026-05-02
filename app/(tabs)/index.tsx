@@ -15,7 +15,7 @@ import { useTheme } from '../../context/theme-context';
 import { useResponsive } from '../../hooks/use-responsive';
 import { productsApi, getImageUrl } from '../../services/api';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { styles } from '../../styles/dashboard.styles';
 
 export default function DashboardScreen() {
