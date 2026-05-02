@@ -120,9 +120,23 @@ export default function CreateProductScreen() {
 
   const uploadImage = async (productId: string, uri: string, type: string) => {
     const fd = new FormData();
-    const uriParts = uri.split('.');
-    const fileType = uriParts[uriParts.length - 1];
-    fd.append('files', { uri, name: `photo.${fileType}`, type: `image/${fileType}` } as any);
+    
+    if (Platform.OS === 'web') {
+      // No Web, precisamos converter a URI em Blob
+      const response = await fetch(uri);
+      const blob = await response.blob();
+      fd.append('files', blob, `photo_${type.toLowerCase()}.jpg`);
+    } else {
+      // No Native (Android/iOS)
+      const uriParts = uri.split('.');
+      const fileType = uriParts[uriParts.length - 1];
+      fd.append('files', { 
+        uri, 
+        name: `photo.${fileType}`, 
+        type: `image/${fileType}` 
+      } as any);
+    }
+    
     fd.append('type', type);
     return productsApi.uploadImage(productId, fd);
   };
