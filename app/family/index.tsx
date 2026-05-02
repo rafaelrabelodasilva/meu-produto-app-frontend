@@ -330,27 +330,27 @@ export default function FamilyScreen() {
             />
           )}
 
-          <View style={[styles.actions, numColumns > 1 && styles.actionsTablet]}>
+          <View style={styles.actions}>
             {!showCreateForm && !showJoinForm && (
-              <>
+              <View style={styles.buttonStack}>
                 <TouchableOpacity 
-                  style={[styles.primaryButton, { backgroundColor: colors.secondary, flex: numColumns > 1 ? 1 : 0 }]}
+                  style={[styles.primaryButton, { backgroundColor: colors.secondary }]}
                   onPress={() => setShowCreateForm(true)}
                 >
                   <Text style={styles.buttonText}>Criar Nova Casa</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                  style={[styles.secondaryButton, { borderColor: colors.secondary, flex: numColumns > 1 ? 1 : 0 }]}
+                  style={[styles.secondaryButton, { borderColor: colors.secondary }]}
                   onPress={() => setShowJoinForm(true)}
                 >
                   <Text style={[styles.secondaryButtonText, { color: colors.secondary }]}>Entrar com Código</Text>
                 </TouchableOpacity>
-              </>
+              </View>
             )}
 
             {showCreateForm && (
-              <View style={[styles.form, { backgroundColor: colors.card, width: '100%' }]}>
+              <View style={[styles.form, { backgroundColor: colors.card }]}>
                 <Text style={[styles.formTitle, { color: colors.text }]}>Nome da Casa</Text>
                 <TextInput
                   style={[styles.input, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}
@@ -375,7 +375,7 @@ export default function FamilyScreen() {
             )}
 
             {showJoinForm && (
-              <View style={[styles.form, { backgroundColor: colors.card, width: '100%' }]}>
+              <View style={[styles.form, { backgroundColor: colors.card }]}>
                 <Text style={[styles.formTitle, { color: colors.text }]}>Código de Convite</Text>
                 <TextInput
                   style={[styles.input, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}
