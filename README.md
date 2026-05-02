@@ -4,7 +4,7 @@ A interface vibrante e amigável do **Meu Produto**, o app que transforma a orga
 
 ## 🚀 Sobre o Projeto
 
-O **Meu Produto** é o assistente essencial para a gestão do seu espaço. Desenvolvido para mobile e web, o app foca em usabilidade real: você registra as dimensões precisas de cada item, guarda fotos de etiquetas técnicas para consulta rápida e compartilha tudo com sua família — para que você nunca mais tenha dúvidas se aquele novo móvel ou eletrodoméstico caberá no seu lar.
+O **Meu Produto** é o assistente essencial para a gestão do seu espaço. Desenvolvido para mobile e web, o app foca em usabilidade real: você registra as dimensões precisas de cada item, guarda fotos de etiquetas técnicas para consulta rápida e compartilha tudo com sua família para que você nunca mais tenha dúvidas se aquele novo móvel ou eletrodoméstico caberá no seu lar.
 
 ### 💡 Por que ele foi feito?
 
