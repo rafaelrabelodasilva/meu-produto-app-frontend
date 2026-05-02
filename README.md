@@ -1,50 +1,82 @@
-# Welcome to your Expo app 👋
+# 📱 Meu Produto - Frontend
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A interface vibrante e amigável do **Meu Produto**, o app que transforma a organização da sua casa em uma experiência leve com a ajuda do Gatinho Organizador.
 
-## Get started
+## 🚀 Sobre o Projeto
 
-1. Install dependencies
+O **Meu Produto** é mais que um inventário; é o assistente pessoal da sua casa. Desenvolvido para mobile e web, o app foca em usabilidade real: você cadastra um item, tira foto da etiqueta (pra nunca mais perder o manual) e compartilha tudo com quem mora com você.
 
-   ```bash
-   npm install
-   ```
+### 💡 Por que ele foi feito?
 
-2. Start the app
+Para resolver o problema de "onde está aquele manual?" ou "será que essa airfryer cabe no nicho da cozinha?". Ele traz transparência para o que a família possui, evitando compras duplicadas e facilitando a manutenção do lar.
 
-   ```bash
-   npx expo start
-   ```
+## ✨ Funcionalidades Principais
 
-In the output, you'll find options to open the app in a
+- **Dashboard Visual:** Grid adaptativo com cards contendo foto, nome e dimensões.
+- **Cadastro Técnico:** Fluxo guiado para capturar medidas e fotos de etiquetas.
+- **Colaboração Familiar:** Crie uma "Casa", convide membros e veja quem cadastrou cada item.
+- **Multi-plataforma:** Experiência consistente em Android, iOS e Web (PWA).
+- **Tema Customizado:** Identidade visual baseada no mascote "Gatinho Organizador".
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 🛠️ Tecnologias Utilizadas
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **React Native & Expo:** Desenvolvimento nativo multiplataforma.
+- **Expo Router:** Navegação baseada em arquivos de última geração.
+- **TypeScript:** Segurança e tipagem em todo o projeto.
+- **AsyncStorage:** Persistência de sessão e preferências locais.
+- **Context API:** Gestão de estado global (Auth, Theme, Toast).
+- **Expo Image Picker:** Integração profunda com a câmera e galeria.
 
-## Get a fresh project
+## 🏁 Como Iniciar (Setup do Zero)
 
-When you're ready, run:
+Siga os passos abaixo para rodar o app no seu ambiente:
 
+### 1. Requisitos
+- Node.js (v18 ou superior)
+- Aplicativo **Expo Go** instalado no seu celular (para teste físico)
+
+### 2. Instalação
 ```bash
-npm run reset-project
+# Clone o repositório
+git clone https://github.com/seu-usuario/meu-produto-app-frontend.git
+
+# Acesse a pasta
+cd meu-produto-app-frontend
+
+# Instale as dependências
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 3. Configuração
+Certifique-se de que o backend está rodando. O app detecta automaticamente o IP da sua máquina se você estiver na mesma rede Wi-Fi. Se precisar forçar a URL:
+```bash
+# Crie um arquivo .env
+EXPO_PUBLIC_API_URL=https://sua-api.com
+```
 
-## Learn more
+### 4. Iniciar o App
+```bash
+# Inicia o servidor de desenvolvimento do Expo
+npm start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Escaneie o QR Code que aparecer no terminal com a câmera do celular (iOS) ou pelo app Expo Go (Android).
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 📜 Comandos Úteis
 
-## Join the community
+| Comando | Descrição |
+| :--- | :--- |
+| `npm start` | Inicia o Metro Bundler do Expo |
+| `npm run android` | Abre o app no emulador Android |
+| `npm run ios` | Abre o app no simulador iOS (necessita macOS) |
+| `npm run web` | Abre a versão web no navegador |
+| `npm run lint` | Verifica erros de estilo no código |
 
-Join our community of developers creating universal apps.
+## 👨‍💻 Autor
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+**Rafael Rabelo da Silva**
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/rafaelrabelodasilva/)
+
+---
+*Gerencie seu lar com a patinha do Gatinho Organizador 🐾*
