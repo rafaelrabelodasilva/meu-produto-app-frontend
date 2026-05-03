@@ -20,8 +20,18 @@ export const API_URL = process.env.EXPO_PUBLIC_API_URL || (localhost
   ? `http://${localhost}:3000` 
   : 'http://localhost:3000');
 
-export const getImageUrl = (url: string | undefined) => 
-  url ? `${API_URL}/uploads/${url}?t=${new Date().getTime()}` : null;
+export const getImageUrl = (url: string | undefined) => {
+  if (!url) return null;
+  
+  // Se a URL já for absoluta (começa com http), retorna ela mesma
+  if (url.startsWith('http')) return url;
+  
+  // Se por algum motivo a URL já contiver o domínio do Supabase mas sem o protocolo (raro, mas possível)
+  if (url.includes('supabase.co')) return `https://${url}`;
+
+  // Caso contrário, usa o padrão antigo de uploads locais
+  return `${API_URL}/uploads/${url}${url.includes('?') ? '' : `?t=${new Date().getTime()}`}`;
+};
 
 console.log('API_URL configurada para:', API_URL);
 

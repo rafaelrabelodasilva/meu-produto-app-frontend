@@ -92,55 +92,61 @@ export default function DashboardScreen() {
     }
   });
 
-  const renderProduct = ({ item }: { item: any }) => (
-    <TouchableOpacity 
-      style={[styles.card, { backgroundColor: colors.card, width: cardWidth }]} 
-      activeOpacity={0.7}
-      onPress={() => router.push(`/product/${item.id}`)}
-    >
-      <View style={[styles.imageContainer, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', height: cardWidth }]}>
-        {item.images && item.images.length > 0 ? (
-          <Image 
-            source={{ uri: getImageUrl(item.images[0].url) || '' }} 
-            style={styles.productImage} 
-          />
-        ) : (
-          <View style={styles.placeholderImage}>
-            <Ionicons name="cube-outline" size={40} color={isDark ? colors.subtitle : '#CBD5E1'} />
-          </View>
-        )}
-      </View>
-      <View style={styles.cardInfo}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.productName, { color: colors.text }]} numberOfLines={1}>{item.name}</Text>
-            <Text style={[styles.productBrand, { color: colors.subtitle }]} numberOfLines={1}>{item.brand || 'Sem marca'}</Text>
-          </View>
-          {item.user && (
-            <View style={{ 
-              width: 24, 
-              height: 24, 
-              borderRadius: 12, 
-              backgroundColor: '#FFD164', 
-              justifyContent: 'center', 
-              alignItems: 'center',
-              marginLeft: 4
-            }}>
-              <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0042cf' }}>
-                {item.user.firstName[0]}
-              </Text>
+  const renderProduct = ({ item }: { item: any }) => {
+    const productImage = item.images?.find((img: any) => img.type === 'PRODUCT') || item.images?.[0];
+    const displayUri = getImageUrl(productImage?.url);
+
+    return (
+      <TouchableOpacity 
+        style={[styles.card, { backgroundColor: colors.card, width: cardWidth }]} 
+        activeOpacity={0.7}
+        onPress={() => router.push(`/product/${item.id}`)}
+      >
+        <View style={[styles.imageContainer, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9', height: cardWidth }]}>
+          {displayUri ? (
+            <Image 
+              source={{ uri: displayUri }} 
+              style={styles.productImage} 
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={styles.placeholderImage}>
+              <Ionicons name="cube-outline" size={40} color={isDark ? colors.subtitle : '#CBD5E1'} />
             </View>
           )}
         </View>
-        <View style={styles.measurementsContainer}>
-          <Ionicons name="resize-outline" size={14} color={colors.secondary} />
-          <Text style={[styles.measurementsText, { color: colors.secondary }]}>
-            {item.size || 'Dimensões não cadastradas'}
-          </Text>
+        <View style={styles.cardInfo}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.productName, { color: colors.text }]} numberOfLines={1}>{item.name}</Text>
+              <Text style={[styles.productBrand, { color: colors.subtitle }]} numberOfLines={1}>{item.brand || 'Sem marca'}</Text>
+            </View>
+            {item.user && (
+              <View style={{ 
+                width: 24, 
+                height: 24, 
+                borderRadius: 12, 
+                backgroundColor: '#FFD164', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                marginLeft: 4
+              }}>
+                <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0042cf' }}>
+                  {item.user.firstName[0]}
+                </Text>
+              </View>
+            )}
+          </View>
+          <View style={styles.measurementsContainer}>
+            <Ionicons name="resize-outline" size={14} color={colors.secondary} />
+            <Text style={[styles.measurementsText, { color: colors.secondary }]}>
+              {item.size || 'Dimensões não cadastradas'}
+            </Text>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
