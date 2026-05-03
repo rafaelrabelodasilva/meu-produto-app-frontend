@@ -147,7 +147,10 @@ export const userApi = {
 };
 
 export const productsApi = {
-  list: (token?: string | null) => apiFetch('/products', {}, token),
+  list: (params?: any, token?: string | null) => {
+    const query = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiFetch(`/products${query}`, {}, token);
+  },
   create: (productData: any, token?: string | null) => apiFetch('/products', {
     method: 'POST',
     body: JSON.stringify(productData),
