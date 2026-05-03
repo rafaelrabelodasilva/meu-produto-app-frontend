@@ -56,6 +56,12 @@ export default function DashboardScreen() {
     }
   };
 
+  const totalValue = products.reduce((acc, product: any) => acc + Number(product.price || 0), 0);
+  const formattedTotal = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(totalValue);
+
   useFocusEffect(
     useCallback(() => {
       fetchProducts();
@@ -190,6 +196,11 @@ export default function DashboardScreen() {
             <View>
               <Text style={[styles.headerTitle, { color: colors.text }]}>Meu Inventário</Text>
               <Text style={[styles.headerSubtitle, { color: colors.subtitle }]}>{products.length} itens catalogados</Text>
+            </View>
+
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={[styles.headerTitle, { color: colors.text }]}>{formattedTotal}</Text>
+              <Text style={[styles.headerSubtitle, { color: colors.subtitle }]}>Capital do Gatinho</Text>
             </View>
           </View>
 
