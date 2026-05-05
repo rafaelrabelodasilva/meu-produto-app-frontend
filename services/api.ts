@@ -16,9 +16,12 @@ const localhost = debuggerHost?.split(':').shift();
 
 // Prioriza a URL de produção definida em variável de ambiente (EAS Build)
 // Caso contrário, tenta o IP local (Dev) ou localhost
-export const API_URL = process.env.EXPO_PUBLIC_API_URL || (localhost 
+const rawUrl = process.env.EXPO_PUBLIC_API_URL || (localhost 
   ? `http://${localhost}:3000` 
   : 'http://localhost:3000');
+
+// Remove barra final se existir para evitar erro de "//" nas rotas
+export const API_URL = rawUrl.replace(/\/$/, '');
 
 export const getImageUrl = (url: string | undefined) => {
   if (!url) return null;
