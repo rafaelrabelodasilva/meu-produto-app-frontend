@@ -9,6 +9,7 @@ import {
   TextInput,
   ActivityIndicator,
   TouchableWithoutFeedback,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/theme-context';
@@ -161,7 +162,8 @@ export const CategoryPicker = ({ selectedId, selectedName: initialName, onSelect
                         color: colors.text, 
                         backgroundColor: isDark ? colors.inputBg : '#F1F5F9',
                         borderColor: isDark ? colors.border : '#E2E8F0'
-                      }
+                      },
+                      Platform.OS === 'web' && { outlineStyle: 'none' }
                     ]}
                     placeholder="Nova Categoria..."
                     placeholderTextColor={colors.subtitle}
@@ -195,7 +197,11 @@ export const CategoryPicker = ({ selectedId, selectedName: initialName, onSelect
                         {editingId === item.id ? (
                           <View style={styles.editInlineRow}>
                             <TextInput
-                              style={[styles.editInlineInput, { color: colors.text, backgroundColor: isDark ? colors.card : '#FFF', borderColor: colors.secondary }]}
+                              style={[
+                                styles.editInlineInput, 
+                                { color: colors.text, backgroundColor: isDark ? colors.card : '#FFF', borderColor: colors.secondary },
+                                Platform.OS === 'web' && { outlineStyle: 'none' }
+                              ]}
                               value={editName}
                               onChangeText={setEditName}
                               autoFocus

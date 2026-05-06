@@ -98,7 +98,7 @@ export default function ForgotPasswordScreen() {
                 <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
                   <Ionicons name="mail-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
                   <TextInput
-                    style={[styles.input, { color: colors.text }]}
+                    style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
                     placeholder="seu@email.com"
                     value={email}
                     onChangeText={setEmail}
@@ -115,7 +115,7 @@ export default function ForgotPasswordScreen() {
                   <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
                     <Ionicons name="key-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
                     <TextInput
-                      style={[styles.input, { color: colors.text }]}
+                      style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
                       placeholder="123456"
                       value={code}
                       onChangeText={setCode}
@@ -131,7 +131,7 @@ export default function ForgotPasswordScreen() {
                   <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
                     <Ionicons name="lock-closed-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
                     <TextInput
-                      style={[styles.input, { color: colors.text }]}
+                      style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
                       placeholder="********"
                       value={newPassword}
                       onChangeText={setNewPassword}

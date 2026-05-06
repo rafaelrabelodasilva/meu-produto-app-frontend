@@ -34,6 +34,7 @@ export const styles = StyleSheet.create({
   },
   modalContent: {
     width: '100%',
+    maxWidth: 600,
     maxHeight: '80%',
     borderRadius: 24,
     padding: 24,

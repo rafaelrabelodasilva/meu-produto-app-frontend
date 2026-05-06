@@ -76,7 +76,7 @@ export default function RegisterScreen() {
             <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
               <Ionicons name="person-outline" size={20} color={colors.secondary} style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
+                style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
                 placeholder="Ex: João"
                 value={firstName}
                 onChangeText={setFirstName}
@@ -90,7 +90,7 @@ export default function RegisterScreen() {
             <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
               <Ionicons name="person-outline" size={20} color={colors.secondary} style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
+                style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
                 placeholder="Ex: Silva"
                 value={lastName}
                 onChangeText={setLastName}
@@ -104,7 +104,7 @@ export default function RegisterScreen() {
             <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
               <Ionicons name="mail-outline" size={20} color={colors.secondary} style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
+                style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
                 placeholder="seu-email@exemplo.com"
                 value={email}
                 onChangeText={setEmail}
@@ -120,7 +120,7 @@ export default function RegisterScreen() {
             <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
               <Ionicons name="lock-closed-outline" size={20} color={colors.secondary} style={styles.inputIcon} />
               <TextInput
-                style={[styles.input, { color: colors.text }]}
+                style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
                 placeholder="Mínimo 8 caracteres"
                 value={password}
                 onChangeText={setPassword}

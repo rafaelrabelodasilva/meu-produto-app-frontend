@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   ScrollView,
   TextInput,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/auth-context';
@@ -145,14 +146,14 @@ export default function ProfileScreen() {
           {isEditingProfile ? (
             <View style={styles.editProfileForm}>
               <TextInput
-                style={[styles.editInput, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}
+                style={[styles.editInput, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
                 placeholder="Nome"
                 placeholderTextColor={colors.subtitle}
                 value={editProfileData.firstName}
                 onChangeText={(t) => setEditProfileData({ ...editProfileData, firstName: t })}
               />
               <TextInput
-                style={[styles.editInput, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}
+                style={[styles.editInput, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
                 placeholder="Sobrenome"
                 placeholderTextColor={colors.subtitle}
                 value={editProfileData.lastName}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TextInput } from 'react-native';
+import { View, Text, TextInput, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/theme-context';
 import { formatDate, formatCurrency, parseDateToBR } from '../../services/utils';
@@ -63,7 +63,12 @@ export const ProductInfoSection = ({
           ]}>
             <Ionicons name={icon} size={20} color={colors.subtitle} style={styles.inputIcon} />
             <TextInput
-              style={[styles.input, { color: colors.text }, multiline && { height: '100%' }]}
+              style={[
+                styles.input, 
+                { color: colors.text }, 
+                multiline && { height: '100%' },
+                Platform.OS === 'web' && { outlineStyle: 'none' }
+              ]}
               value={value}
               onChangeText={(t) => {
                 if (isDate) setPurchaseDate(formatDate(t));
@@ -94,7 +99,11 @@ export const ProductInfoSection = ({
       <Text style={[styles.label, { fontSize: 10, color: colors.subtitle, marginBottom: 4 }]}>{label} (CM)</Text>
       {isEditing ? (
         <TextInput
-          style={[styles.measureInput, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: isDark ? colors.border : '#E2E8F0' }]}
+          style={[
+            styles.measureInput, 
+            { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9', borderColor: isDark ? colors.border : '#E2E8F0' },
+            Platform.OS === 'web' && { outlineStyle: 'none' }
+          ]}
           value={value}
           onChangeText={(t) => setMeasures({ ...measures, [key]: t })}
           keyboardType="decimal-pad"

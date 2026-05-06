@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TextInput, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/theme-context';
 
@@ -30,7 +30,7 @@ export const ProductMeasuresSection = ({
           <Ionicons name={icon} size={20} color={colors.subtitle} />
         </View>
         <TextInput
-          style={[styles.input, { color: colors.text }]}
+          style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
           value={value}
           onChangeText={(t) => setMeasures({ ...measures, [key]: t })}
           keyboardType="decimal-pad"

@@ -199,7 +199,7 @@ export default function CreateProductScreen() {
             <View style={{ flex: 1, alignItems: isTablet ? 'center' : 'flex-start' }}>
               <Text style={{ fontSize: isTablet ? 20 : 17, fontWeight: '700', color: colors.text, textAlign: isTablet ? 'center' : 'left' }}>Produto Principal</Text>
               <Text style={{ fontSize: isTablet ? 14 : 13, color: colors.subtitle, marginTop: 4, textAlign: isTablet ? 'center' : 'left' }}>
-                Itens como Geladeiras, TVs, Ferramentas ou Móveis.
+                Ex: TVs, Mesa, Luminária, Geladeira, Máquina de lavar, Carro, etc.
               </Text>
             </View>
             {!isTablet && <Ionicons name="chevron-forward" size={20} color={colors.subtitle} />}
@@ -224,7 +224,7 @@ export default function CreateProductScreen() {
             <View style={{ flex: 1, alignItems: isTablet ? 'center' : 'flex-start' }}>
               <Text style={{ fontSize: isTablet ? 20 : 17, fontWeight: '700', color: colors.text, textAlign: isTablet ? 'center' : 'left' }}>Acessório ou Peça</Text>
               <Text style={{ fontSize: isTablet ? 14 : 13, color: colors.subtitle, marginTop: 4, textAlign: isTablet ? 'center' : 'left' }}>
-                Itens como Pilhas, Filtros, Brocas ou Cabos.
+                Ex: Pilhas, Toalha de mesa, Lâmpada, Capa para máquina de lavar, etc.
               </Text>
             </View>
             {!isTablet && <Ionicons name="chevron-forward" size={20} color={colors.subtitle} />}
@@ -240,7 +240,7 @@ export default function CreateProductScreen() {
         <Text style={[styles.label, { color: colors.text }]}>Nome do {formData.type === 'MAIN' ? 'Produto' : 'Acessório'} *</Text>
         <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }, errors.name && styles.inputError]}>
           <Ionicons name="pricetag-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
-          <TextInput style={[styles.input, { color: colors.text }]} placeholder={formData.type === 'MAIN' ? "Ex: Cadeira de Escritório" : "Ex: Pilha AA Recarregável"} value={formData.name} onChangeText={(text) => setFormData({ ...formData, name: text })} placeholderTextColor={colors.subtitle} />
+          <TextInput style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]} placeholder={formData.type === 'MAIN' ? "Ex: Cadeira de Escritório" : "Ex: Pilha AA Recarregável"} value={formData.name} onChangeText={(text) => setFormData({ ...formData, name: text })} placeholderTextColor={colors.subtitle} />
         </View>
         {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
       </View>
@@ -249,7 +249,7 @@ export default function CreateProductScreen() {
         <Text style={[styles.label, { color: colors.text }]}>Marca</Text>
         <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
           <Ionicons name="business-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
-          <TextInput style={[styles.input, { color: colors.text }]} placeholder="Ex: Herman Miller" value={formData.brand} onChangeText={(text) => setFormData({ ...formData, brand: text })} placeholderTextColor={colors.subtitle} />
+          <TextInput style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]} placeholder="Ex: Herman Miller" value={formData.brand} onChangeText={(text) => setFormData({ ...formData, brand: text })} placeholderTextColor={colors.subtitle} />
         </View>
       </View>
 
@@ -257,7 +257,7 @@ export default function CreateProductScreen() {
         <Text style={[styles.label, { color: colors.text }]}>Modelo</Text>
         <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
           <Ionicons name="barcode-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
-          <TextInput style={[styles.input, { color: colors.text }]} placeholder="Ex: Aeron Size B" value={formData.model} onChangeText={(text) => setFormData({ ...formData, model: text })} placeholderTextColor={colors.subtitle} />
+          <TextInput style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]} placeholder="Ex: Aeron Size B" value={formData.model} onChangeText={(text) => setFormData({ ...formData, model: text })} placeholderTextColor={colors.subtitle} />
         </View>
       </View>
 
@@ -269,7 +269,7 @@ export default function CreateProductScreen() {
         <Text style={[styles.label, { color: colors.text }]}>Valor Estimado (R$)</Text>
         <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
           <Ionicons name="cash-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
-          <TextInput style={[styles.input, { color: colors.text }]} placeholder="0,00" value={formData.price} onChangeText={(text) => setFormData({ ...formData, price: formatCurrency(text) })} keyboardType="numeric" placeholderTextColor={colors.subtitle} />
+          <TextInput style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]} placeholder="0,00" value={formData.price} onChangeText={(text) => setFormData({ ...formData, price: formatCurrency(text) })} keyboardType="numeric" placeholderTextColor={colors.subtitle} />
         </View>
       </View>
 
@@ -277,7 +277,7 @@ export default function CreateProductScreen() {
         <Text style={[styles.label, { color: colors.text }]}>Data de Compra (DD/MM/AAAA)</Text>
         <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]}>
           <Ionicons name="calendar-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
-          <TextInput style={[styles.input, { color: colors.text }]} placeholder="Ex: 10/05/2024" value={formData.purchaseDate} onChangeText={(text) => setFormData({ ...formData, purchaseDate: formatDate(text) })} keyboardType="numeric" maxLength={10} placeholderTextColor={colors.subtitle} />
+          <TextInput style={[styles.input, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]} placeholder="Ex: 10/05/2024" value={formData.purchaseDate} onChangeText={(text) => setFormData({ ...formData, purchaseDate: formatDate(text) })} keyboardType="numeric" maxLength={10} placeholderTextColor={colors.subtitle} />
         </View>
       </View>
 
@@ -286,15 +286,15 @@ export default function CreateProductScreen() {
         <View style={styles.row}>
           <View style={{ flex: 1 }}>
             <Text style={[styles.label, { fontSize: 10, color: colors.subtitle, marginBottom: 4, textTransform: 'uppercase' }]}>ALTURA (CM)</Text>
-            <TextInput style={[styles.measureInput, { color: colors.text, backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]} placeholder="0.0" value={formData.height} onChangeText={(text) => setFormData({ ...formData, height: text })} keyboardType="decimal-pad" placeholderTextColor={colors.subtitle} />
+            <TextInput style={[styles.measureInput, { color: colors.text, backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }, Platform.OS === 'web' && { outlineStyle: 'none' }]} placeholder="0.0" value={formData.height} onChangeText={(text) => setFormData({ ...formData, height: text })} keyboardType="decimal-pad" placeholderTextColor={colors.subtitle} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.label, { fontSize: 10, color: colors.subtitle, marginBottom: 4, textTransform: 'uppercase' }]}>LARGURA (CM)</Text>
-            <TextInput style={[styles.measureInput, { color: colors.text, backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]} placeholder="0.0" value={formData.width} onChangeText={(text) => setFormData({ ...formData, width: text })} keyboardType="decimal-pad" placeholderTextColor={colors.subtitle} />
+            <TextInput style={[styles.measureInput, { color: colors.text, backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }, Platform.OS === 'web' && { outlineStyle: 'none' }]} placeholder="0.0" value={formData.width} onChangeText={(text) => setFormData({ ...formData, width: text })} keyboardType="decimal-pad" placeholderTextColor={colors.subtitle} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={[styles.label, { fontSize: 10, color: colors.subtitle, marginBottom: 4, textTransform: 'uppercase' }]}>PROFUND. (CM)</Text>
-            <TextInput style={[styles.measureInput, { color: colors.text, backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }]} placeholder="0.0" value={formData.depth} onChangeText={(text) => setFormData({ ...formData, depth: text })} keyboardType="decimal-pad" placeholderTextColor={colors.subtitle} />
+            <TextInput style={[styles.measureInput, { color: colors.text, backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }, Platform.OS === 'web' && { outlineStyle: 'none' }]} placeholder="0.0" value={formData.depth} onChangeText={(text) => setFormData({ ...formData, depth: text })} keyboardType="decimal-pad" placeholderTextColor={colors.subtitle} />
           </View>
         </View>
       </View>
@@ -303,7 +303,7 @@ export default function CreateProductScreen() {
         <Text style={[styles.label, { color: colors.text }]}>Notas / Observações</Text>
         <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0', height: 100, alignItems: 'flex-start', paddingTop: 12 }]}>
           <Ionicons name="document-text-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
-          <TextInput style={[styles.input, { color: colors.text, height: '100%' }]} placeholder="Ex: Comprado na Shopee, garantia de 1 ano..." value={formData.notes} onChangeText={(text) => setFormData({ ...formData, notes: text })} placeholderTextColor={colors.subtitle} multiline />
+          <TextInput style={[styles.input, { color: colors.text, height: '100%' }, Platform.OS === 'web' && { outlineStyle: 'none' }]} placeholder="Ex: Comprado na Shopee, garantia de 1 ano..." value={formData.notes} onChangeText={(text) => setFormData({ ...formData, notes: text })} placeholderTextColor={colors.subtitle} multiline />
         </View>
       </View>
       

@@ -9,6 +9,7 @@ import {
   TextInput,
   Image,
   FlatList,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/auth-context';
@@ -189,7 +190,11 @@ export default function FamilyScreen() {
           {isEditing ? (
             <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
               <TextInput
-                style={[styles.editInput, { color: colors.text, backgroundColor: isDark ? colors.background : '#F1F5F9' }]}
+                style={[
+                  styles.editInput, 
+                  { color: colors.text, backgroundColor: isDark ? colors.background : '#F1F5F9' },
+                  Platform.OS === 'web' && { outlineStyle: 'none' }
+                ]}
                 value={editName}
                 onChangeText={setEditName}
                 autoFocus
@@ -362,7 +367,11 @@ export default function FamilyScreen() {
               <View style={[styles.form, { backgroundColor: colors.card }]}>
                 <Text style={[styles.formTitle, { color: colors.text }]}>Nome da Família</Text>
                 <TextInput
-                  style={[styles.input, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}
+                  style={[
+                    styles.input, 
+                    { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' },
+                    Platform.OS === 'web' && { outlineStyle: 'none' }
+                  ]}
                   placeholder="Ex: Família Silva, Apartamento 42..."
                   placeholderTextColor={colors.subtitle}
                   value={familyName}
@@ -387,7 +396,11 @@ export default function FamilyScreen() {
               <View style={[styles.form, { backgroundColor: colors.card }]}>
                 <Text style={[styles.formTitle, { color: colors.text }]}>Código de Convite</Text>
                 <TextInput
-                  style={[styles.input, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}
+                  style={[
+                    styles.input, 
+                    { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' },
+                    Platform.OS === 'web' && { outlineStyle: 'none' }
+                  ]}
                   placeholder="Digite o código de 8 dígitos"
                   placeholderTextColor={colors.subtitle}
                   value={inviteCode}

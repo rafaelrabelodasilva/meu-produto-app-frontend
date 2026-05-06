@@ -10,6 +10,7 @@ import {
   Image,
   ActivityIndicator,
   Pressable,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/theme-context';
@@ -106,7 +107,7 @@ export const ProductLinkModal: React.FC<ProductLinkModalProps> = ({
           <View style={[styles.searchBar, { backgroundColor: colors.inputBg }]}>
             <Ionicons name="search-outline" size={20} color={colors.subtitle} />
             <TextInput
-              style={[styles.searchInput, { color: colors.text }]}
+              style={[styles.searchInput, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
               placeholder="Buscar itens para vincular..."
               placeholderTextColor={colors.subtitle}
               value={search}

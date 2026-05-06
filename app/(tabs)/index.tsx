@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   RefreshControl,
   TextInput,
+  Platform,
 } from 'react-native';
 import { useAuth } from '../../context/auth-context';
 import { useTheme } from '../../context/theme-context';
@@ -36,6 +37,8 @@ export default function DashboardScreen() {
 
   const SEARCH_SCOPES = [
     { id: 'ALL', label: 'TODOS', icon: 'apps-outline' },
+    { id: 'MAIN', label: 'PRINCIPAL', icon: 'star-outline' },
+    { id: 'ACCESSORY', label: 'ACESSÓRIO', icon: 'build-outline' },
     { id: 'NAME', label: 'NOME', icon: 'pricetag-outline' },
     { id: 'BRAND', label: 'MARCA', icon: 'business-outline' },
     { id: 'MODEL', label: 'MODELO', icon: 'barcode-outline' },
@@ -79,6 +82,11 @@ export default function DashboardScreen() {
 
   const filteredProducts = products.filter(product => {
     const query = searchQuery.toLowerCase();
+    
+    // Filtro por tipo (PRINCIPAL ou ACESSÓRIO)
+    if (searchScope === 'MAIN' && product.type !== 'MAIN') return false;
+    if (searchScope === 'ACCESSORY' && product.type !== 'ACCESSORY') return false;
+
     if (!query) return true;
 
     switch (searchScope) {
@@ -89,6 +97,8 @@ export default function DashboardScreen() {
       case 'MODEL':
         return (product.model || '').toLowerCase().includes(query);
       case 'ALL':
+      case 'MAIN':
+      case 'ACCESSORY':
       default:
         return (
           product.name.toLowerCase().includes(query) ||
@@ -102,6 +112,7 @@ export default function DashboardScreen() {
     const productImage = item.images?.find((img: any) => img.type === 'PRODUCT') || item.images?.[0];
     const displayUri = getImageUrl(productImage?.url);
     const isAccessory = item.type === 'ACCESSORY';
+    const isMain = item.type === 'MAIN';
 
     return (
       <TouchableOpacity 
@@ -139,6 +150,26 @@ export default function DashboardScreen() {
             }}>
               <Ionicons name="build-outline" size={12} color="#D97706" style={{ marginRight: 4 }} />
               <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#D97706' }}>ACESSÓRIO</Text>
+            </View>
+          )}
+
+          {isMain && (
+            <View style={{
+              position: 'absolute',
+              top: 8,
+              left: 8,
+              backgroundColor: '#E0E7FF',
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              borderRadius: 12,
+              flexDirection: 'row',
+              alignItems: 'center',
+              borderWidth: 1,
+              borderColor: '#0042cf',
+              zIndex: 10
+            }}>
+              <Ionicons name="star-outline" size={12} color="#0042cf" style={{ marginRight: 4 }} />
+              <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#0042cf' }}>PRINCIPAL</Text>
             </View>
           )}
         </View>
@@ -228,7 +259,7 @@ export default function DashboardScreen() {
           <View style={[styles.searchWrapper, { backgroundColor: colors.inputBg }]}>
             <Ionicons name="search-outline" size={20} color={colors.subtitle} style={styles.searchIcon} />
             <TextInput
-              style={[styles.searchInput, { color: colors.text }]}
+              style={[styles.searchInput, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
               placeholder={`Buscar por ${SEARCH_SCOPES.find(s => s.id === searchScope)?.label.toLowerCase()}...`}
               value={searchQuery}
               onChangeText={setSearchQuery}

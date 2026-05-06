@@ -97,30 +97,34 @@ export default function AlmoxarifadoScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <View style={styles.headerTitleContainer}>
-          <Text style={[styles.title, { color: colors.text }]}>Almoxarifado</Text>
-          <Text style={[styles.subtitle, { color: colors.secondary }]}>Gestão de acessórios e peças sem vínculo com um produto principal</Text>
+      <View style={[dashboardStyles.header, { backgroundColor: colors.card, borderBottomColor: isDark ? colors.inputBg : '#F1F5F9' }]}>
+        <View style={[dashboardStyles.headerContent, { flexDirection: 'row', alignItems: 'center', gap: 16 }]}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <View style={styles.headerTitleContainer}>
+            <Text style={[styles.title, { color: colors.text }]}>Almoxarifado</Text>
+            <Text style={[styles.subtitle, { color: colors.secondary }]}>Gestão de acessórios e peças sem vínculo com um produto principal</Text>
+          </View>
+          <Image 
+            source={require('../../assets/kitty_on_computer.png')} 
+            style={styles.kittyHeader}
+            resizeMode="contain"
+          />
         </View>
-        <Image 
-          source={require('../../assets/kitty_on_computer.png')} 
-          style={styles.kittyHeader}
-          resizeMode="contain"
-        />
       </View>
 
-      <View style={[dashboardStyles.searchWrapper, { backgroundColor: colors.inputBg, marginHorizontal: 24, marginBottom: 20 }]}>
-        <Ionicons name="search-outline" size={20} color={colors.subtitle} style={dashboardStyles.searchIcon} />
-        <TextInput
-          style={[dashboardStyles.searchInput, { color: colors.text }]}
-          placeholder="Buscar no almoxarifado..."
-          placeholderTextColor={colors.subtitle}
-          value={search}
-          onChangeText={setSearch}
-        />
+      <View style={styles.searchContainer}>
+        <View style={[dashboardStyles.searchWrapper, { backgroundColor: colors.inputBg }]}>
+          <Ionicons name="search-outline" size={20} color={colors.subtitle} style={dashboardStyles.searchIcon} />
+          <TextInput
+            style={[dashboardStyles.searchInput, { color: colors.text }, Platform.OS === 'web' && { outlineStyle: 'none' }]}
+            placeholder="Buscar no almoxarifado..."
+            placeholderTextColor={colors.subtitle}
+            value={search}
+            onChangeText={setSearch}
+          />
+        </View>
       </View>
 
       {loading ? (
@@ -162,13 +166,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    paddingTop: 60,
+  searchContainer: {
+    width: '100%',
+    maxWidth: 1400,
+    alignSelf: 'center',
     paddingHorizontal: 24,
-    paddingBottom: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
+    marginTop: 20,
+    marginBottom: 8,
   },
   backButton: {
     width: 40,

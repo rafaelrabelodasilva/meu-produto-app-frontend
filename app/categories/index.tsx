@@ -115,7 +115,11 @@ export default function CategoriesScreen() {
         {isEditing ? (
           <View style={styles.editRow}>
             <TextInput
-              style={[styles.editInput, { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}
+              style={[
+                styles.editInput, 
+                { color: colors.text, backgroundColor: isDark ? colors.inputBg : '#F1F5F9' },
+                Platform.OS === 'web' && { outlineStyle: 'none' }
+              ]}
               value={editName}
               onChangeText={setEditName}
               autoFocus
@@ -167,7 +171,8 @@ export default function CategoriesScreen() {
               color: colors.text, 
               backgroundColor: colors.card,
               borderColor: isDark ? colors.border : '#E2E8F0'
-            }
+            },
+            Platform.OS === 'web' && { outlineStyle: 'none' }
           ]}
           placeholder="Nome da nova categoria..."
           placeholderTextColor={colors.subtitle}
@@ -218,4 +223,3 @@ export default function CategoriesScreen() {
     </KeyboardAvoidingView>
   );
 }
-
