@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -43,9 +43,11 @@ export default function FamilyScreen() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [confirmRemoveMember, setConfirmRemoveMember] = useState<{ familyId: string, userId: string } | null>(null);
 
-  // Responsividade
-  const numColumns = width > 1000 ? 2 : 1;
-  const cardWidth = numColumns > 1 ? (width - 60) / 2 : width - 40;
+  // Lógica de responsividade idêntica ao Dashboard
+  const numColumns = width > 1200 ? 3 : isTablet ? 2 : 1;
+  const paddingTotal = isTablet ? 48 : 40;
+  const gapTotal = (numColumns - 1) * 24;
+  const cardWidth = (Math.min(width, 1400) - paddingTotal - gapTotal) / numColumns;
 
   useEffect(() => {
     fetchFamilies();
@@ -295,9 +297,9 @@ export default function FamilyScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <View style={styles.headerTop}>
+          <View style={[styles.headerTop, { maxWidth: 1400 }]}>
             <View style={styles.titleContainer}>
               <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                 <Ionicons name="arrow-back" size={24} color={colors.text} />
@@ -312,7 +314,7 @@ export default function FamilyScreen() {
           </View>
         </View>
 
-        <View style={styles.responsiveContent}>
+        <View style={[styles.responsiveContent, { maxWidth: 1400 }]}>
           {families.length === 0 ? (
             <View style={styles.emptyState}>
               <Text style={[styles.emptyText, { color: colors.text }]}>
@@ -568,4 +570,3 @@ const styles = StyleSheet.create({
   formActions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   smallButton: { paddingHorizontal: 24, height: 44, borderRadius: 12, justifyContent: 'center' },
 });
-

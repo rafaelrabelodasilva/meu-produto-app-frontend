@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { router } from 'expo-router';
+import { Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { productsApi, categoriesApi } from '../services/api';
 import { useAuth } from '../context/auth-context';
@@ -28,9 +29,15 @@ export function useProductDetail(id: string) {
     depth: '',
   });
 
+  const [linkedProducts, setLinkedProducts] = useState<any[]>([]);
+  const [linkedBy, setLinkedBy] = useState<any[]>([]);
+  const [availableProducts, setAvailableProducts] = useState<any[]>([]);
+  const [linkedProductIds, setLinkedProductIds] = useState<string[]>([]);
+
   // Modais
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [linkModalVisible, setLinkModalVisible] = useState(false);
   const [activePickerType, setActivePickerType] = useState<'product' | 'label'>('product');
 
   const fetchProduct = useCallback(async () => {
@@ -44,6 +51,9 @@ export function useProductDetail(id: string) {
       setCategoryId(data.category?.id || null);
       setCategoryName(data.category?.name || '');
       setPurchaseDate(parseDateToBR(data.purchaseDate));
+      setLinkedProducts(data.linkedProducts || []);
+      setLinkedBy(data.linkedBy || []);
+      setLinkedProductIds((data.linkedProducts || []).map((p: any) => p.id));
       
       if (data.size) {
         const parts = data.size.replace(' cm', '').split(' x ');
@@ -64,9 +74,39 @@ export function useProductDetail(id: string) {
     }
   }, [id, showToast]);
 
+  const fetchAvailableProducts = useCallback(async () => {
+    try {
+      const { data } = await productsApi.list({ limit: 100 });
+      // Filtrar o próprio produto da lista
+      const filtered = data.filter((p: any) => p.id !== id);
+      
+      // Ordenação inteligente: Colocar tipos opostos no topo
+      const sorted = [...filtered].sort((a, b) => {
+        const isAOpposite = a.type !== product?.type;
+        const isBOpposite = b.type !== product?.type;
+        
+        if (isAOpposite && !isBOpposite) return -1;
+        if (!isAOpposite && isBOpposite) return 1;
+        return 0;
+      });
+
+      setAvailableProducts(sorted);
+    } catch (error) {
+      console.error('Erro ao buscar produtos disponíveis:', error);
+    }
+  }, [id, product?.type]);
+
   useEffect(() => {
     fetchProduct();
   }, [fetchProduct]);
+
+  // Preview em tempo real dos vínculos durante a edição
+  useEffect(() => {
+    if (isEditing && availableProducts.length > 0) {
+      const preview = availableProducts.filter(p => linkedProductIds.includes(p.id));
+      setLinkedProducts(preview);
+    }
+  }, [linkedProductIds, isEditing, availableProducts]);
 
   const toggleEditing = (value: boolean) => {
     if (!value) {
@@ -76,6 +116,8 @@ export function useProductDetail(id: string) {
       setCategoryId(product.category?.id || null);
       setCategoryName(product.category?.name || '');
       setPurchaseDate(parseDateToBR(product.purchaseDate));
+      setLinkedProductIds((product.linkedProducts || []).map((p: any) => p.id));
+      setLinkedProducts(product.linkedProducts || []); // 👈 Restaura os vínculos originais
       setNewImageUri(null);
       setNewLabelUri(null);
       
@@ -85,8 +127,18 @@ export function useProductDetail(id: string) {
           setMeasures({ height: parts[0], width: parts[1], depth: parts[2] });
         }
       }
+    } else {
+      fetchAvailableProducts();
     }
     setIsEditing(value);
+  };
+
+  const toggleProductLink = (productId: string) => {
+    setLinkedProductIds(prev => 
+      prev.includes(productId) 
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
   };
 
   const pickImage = (type: 'product' | 'label') => {
@@ -203,6 +255,7 @@ export function useProductDetail(id: string) {
         notes: editData.notes,
         categoryId: categoryId,
         purchaseDate: parseBRDateToISO(purchaseDate),
+        linkedProductIds, // 👈 Novo campo
       };
 
       await productsApi.update(id, payload);
@@ -258,8 +311,13 @@ export function useProductDetail(id: string) {
     newImageUri,
     newLabelUri,
     measures,
+    linkedProducts,
+    linkedBy,
+    availableProducts,
+    linkedProductIds,
     deleteModalVisible,
     pickerVisible,
+    linkModalVisible,
     setEditData,
     setCategoryId,
     setCategoryName,
@@ -267,7 +325,9 @@ export function useProductDetail(id: string) {
     setMeasures,
     setDeleteModalVisible,
     setPickerVisible,
+    setLinkModalVisible,
     toggleEditing,
+    toggleProductLink,
     pickImage,
     openCamera,
     openLibrary,

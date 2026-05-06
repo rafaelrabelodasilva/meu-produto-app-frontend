@@ -22,7 +22,7 @@ export default function DashboardScreen() {
   const { token } = useAuth();
   const { colors, isDark } = useTheme();
   const { width, isTablet } = useResponsive();
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchScope, setSearchScope] = useState('ALL');
   const [loading, setLoading] = useState(true);
@@ -101,6 +101,7 @@ export default function DashboardScreen() {
   const renderProduct = ({ item }: { item: any }) => {
     const productImage = item.images?.find((img: any) => img.type === 'PRODUCT') || item.images?.[0];
     const displayUri = getImageUrl(productImage?.url);
+    const isAccessory = item.type === 'ACCESSORY';
 
     return (
       <TouchableOpacity 
@@ -118,6 +119,26 @@ export default function DashboardScreen() {
           ) : (
             <View style={styles.placeholderImage}>
               <Ionicons name="cube-outline" size={40} color={isDark ? colors.subtitle : '#CBD5E1'} />
+            </View>
+          )}
+
+          {isAccessory && (
+            <View style={{
+              position: 'absolute',
+              top: 8,
+              left: 8,
+              backgroundColor: '#FEF3C7',
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              borderRadius: 12,
+              flexDirection: 'row',
+              alignItems: 'center',
+              borderWidth: 1,
+              borderColor: '#D97706',
+              zIndex: 10
+            }}>
+              <Ionicons name="build-outline" size={12} color="#D97706" style={{ marginRight: 4 }} />
+              <Text style={{ fontSize: 10, fontWeight: 'bold', color: '#D97706' }}>ACESSÓRIO</Text>
             </View>
           )}
         </View>

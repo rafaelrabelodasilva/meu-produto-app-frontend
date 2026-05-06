@@ -9,6 +9,7 @@ import {
   Platform,
   Image,
   ActivityIndicator,
+  ViewStyle,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
@@ -28,7 +29,7 @@ export default function CreateProductScreen() {
   const { showToast } = useToast();
   const { colors, isDark } = useTheme();
   const { isTablet } = useResponsive();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   
   const [pickerVisible, setPickerVisible] = useState(false);
@@ -37,6 +38,7 @@ export default function CreateProductScreen() {
   const [formData, setFormData] = useState({
     name: '', brand: '', model: '', categoryId: null as string | null, categoryName: '',
     price: '', height: '', width: '', depth: '', purchaseDate: '', notes: '',
+    type: 'MAIN' as 'MAIN' | 'ACCESSORY',
   });
 
   const [images, setImages] = useState<{ product: string | null; label: string | null; }>({ product: null, label: null });
@@ -45,10 +47,11 @@ export default function CreateProductScreen() {
   useFocusEffect(
     useCallback(() => {
       return () => {
-        setStep(1);
+        setStep(0);
         setFormData({
           name: '', brand: '', model: '', categoryId: null, categoryName: '',
           price: '', height: '', width: '', depth: '', purchaseDate: '', notes: '',
+          type: 'MAIN',
         });
         setImages({ product: null, label: null });
         setErrors({});
@@ -86,7 +89,14 @@ export default function CreateProductScreen() {
     } catch (err) { console.error(err); }
   };
 
-  const handleNext = () => { if (step === 1 && validateStep1()) setStep(2); };
+  const handleNext = () => { 
+    if (step === 1 && validateStep1()) setStep(2); 
+  };
+
+  const selectType = (type: 'MAIN' | 'ACCESSORY') => {
+    setFormData(prev => ({ ...prev, type }));
+    setStep(1);
+  };
 
   const handleSubmit = async () => {
     if (!token) { signOut(); return; }
@@ -96,6 +106,7 @@ export default function CreateProductScreen() {
         name: formData.name,
         brand: formData.brand,
         model: formData.model,
+        type: formData.type,
         price: formData.price ? parseFloat(formData.price.toString().replace(',', '.')) : 0,
         size: `${formData.height || '0'} x ${formData.width || '0'} x ${formData.depth || '0'} cm`,
         categoryId: formData.categoryId,
@@ -141,13 +152,95 @@ export default function CreateProductScreen() {
     return productsApi.uploadImage(productId, fd);
   };
 
+  const renderStep0 = () => {
+    const cardHeight = isTablet ? 240 : 130;
+    
+    const commonCardStyle: ViewStyle = {
+      backgroundColor: colors.card,
+      borderWidth: 2,
+      padding: 20,
+      borderRadius: 16,
+      flex: 1,
+      flexDirection: isTablet ? 'column' : 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: cardHeight, // Altura fixa para garantir simetria absoluta
+      marginBottom: 0,    // Remove margens que podem causar desalinhamento
+    };
+
+    return (
+      <View style={{ flex: 1, paddingVertical: 20, width: '100%', maxWidth: 800 }}>
+        <Text style={[styles.sectionTitle, { color: colors.text, textAlign: 'center', marginBottom: 30 }]}>
+          O que vamos catalogar hoje?
+        </Text>
+        
+        <View style={{ 
+          flexDirection: isTablet ? 'row' : 'column', 
+          gap: 16, 
+          width: '100%',
+          alignItems: 'stretch',
+        }}>
+          <TouchableOpacity 
+            style={[styles.card, commonCardStyle, { borderColor: colors.secondary }]}
+            onPress={() => selectType('MAIN')}
+          >
+            <View style={{ 
+              width: isTablet ? 80 : 50, 
+              height: isTablet ? 80 : 50, 
+              borderRadius: isTablet ? 40 : 25, 
+              backgroundColor: '#E0F2FE', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              marginRight: isTablet ? 0 : 16,
+              marginBottom: isTablet ? 16 : 0
+            }}>
+              <Ionicons name="cube-outline" size={isTablet ? 40 : 28} color={colors.secondary} />
+            </View>
+            <View style={{ flex: 1, alignItems: isTablet ? 'center' : 'flex-start' }}>
+              <Text style={{ fontSize: isTablet ? 20 : 17, fontWeight: '700', color: colors.text, textAlign: isTablet ? 'center' : 'left' }}>Produto Principal</Text>
+              <Text style={{ fontSize: isTablet ? 14 : 13, color: colors.subtitle, marginTop: 4, textAlign: isTablet ? 'center' : 'left' }}>
+                Itens como Geladeiras, TVs, Ferramentas ou Móveis.
+              </Text>
+            </View>
+            {!isTablet && <Ionicons name="chevron-forward" size={20} color={colors.subtitle} />}
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.card, commonCardStyle, { borderColor: '#FFD164' }]}
+            onPress={() => selectType('ACCESSORY')}
+          >
+            <View style={{ 
+              width: isTablet ? 80 : 50, 
+              height: isTablet ? 80 : 50, 
+              borderRadius: isTablet ? 40 : 25, 
+              backgroundColor: '#FEF3C7', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              marginRight: isTablet ? 0 : 16,
+              marginBottom: isTablet ? 16 : 0
+            }}>
+              <Ionicons name="build-outline" size={isTablet ? 40 : 28} color="#D97706" />
+            </View>
+            <View style={{ flex: 1, alignItems: isTablet ? 'center' : 'flex-start' }}>
+              <Text style={{ fontSize: isTablet ? 20 : 17, fontWeight: '700', color: colors.text, textAlign: isTablet ? 'center' : 'left' }}>Acessório ou Peça</Text>
+              <Text style={{ fontSize: isTablet ? 14 : 13, color: colors.subtitle, marginTop: 4, textAlign: isTablet ? 'center' : 'left' }}>
+                Itens como Pilhas, Filtros, Brocas ou Cabos.
+              </Text>
+            </View>
+            {!isTablet && <Ionicons name="chevron-forward" size={20} color={colors.subtitle} />}
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
   const renderStep1 = () => (
     <View style={styles.form}>
       <View style={styles.inputGroup}>
-        <Text style={[styles.label, { color: colors.text }]}>Nome do Produto *</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Nome do {formData.type === 'MAIN' ? 'Produto' : 'Acessório'} *</Text>
         <View style={[styles.inputWrapper, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }, errors.name && styles.inputError]}>
           <Ionicons name="pricetag-outline" size={20} color={colors.subtitle} style={styles.inputIcon} />
-          <TextInput style={[styles.input, { color: colors.text }]} placeholder="Ex: Cadeira de Escritório" value={formData.name} onChangeText={(text) => setFormData({ ...formData, name: text })} placeholderTextColor={colors.subtitle} />
+          <TextInput style={[styles.input, { color: colors.text }]} placeholder={formData.type === 'MAIN' ? "Ex: Cadeira de Escritório" : "Ex: Pilha AA Recarregável"} value={formData.name} onChangeText={(text) => setFormData({ ...formData, name: text })} placeholderTextColor={colors.subtitle} />
         </View>
         {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
       </View>
@@ -213,6 +306,10 @@ export default function CreateProductScreen() {
           <TextInput style={[styles.input, { color: colors.text, height: '100%' }]} placeholder="Ex: Comprado na Shopee, garantia de 1 ano..." value={formData.notes} onChangeText={(text) => setFormData({ ...formData, notes: text })} placeholderTextColor={colors.subtitle} multiline />
         </View>
       </View>
+      
+      <TouchableOpacity onPress={() => setStep(0)} style={styles.backButton}>
+        <Ionicons name="arrow-back" size={20} color={colors.secondary} /><Text style={[styles.backButtonText, { color: colors.secondary }]}>Mudar Tipo de Item</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -220,7 +317,7 @@ export default function CreateProductScreen() {
     <View style={styles.form}>
       <Text style={[styles.sectionTitle, { color: colors.text }]}>Registro Visual</Text>
       <View style={styles.photoContainer}>
-        <Text style={[styles.photoLabel, { color: colors.text }]}>Foto do Produto (Opcional)</Text>
+        <Text style={[styles.photoLabel, { color: colors.text }]}>Foto do {formData.type === 'MAIN' ? 'Produto' : 'Acessório'} (Opcional)</Text>
         <TouchableOpacity style={[styles.photoBox, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }, images.product && [styles.photoBoxActive, { borderColor: colors.secondary }]]} onPress={() => pickImage('product')}>
           {images.product ? <Image source={{ uri: images.product }} style={styles.capturedImage} /> : (
             <View style={styles.photoPlaceholder}>
@@ -232,6 +329,11 @@ export default function CreateProductScreen() {
       </View>
       <View style={styles.photoContainer}>
         <Text style={[styles.photoLabel, { color: colors.text }]}>Foto da Etiqueta / Manual (Opcional)</Text>
+        {formData.type === 'ACCESSORY' && (
+          <Text style={{ color: colors.secondary, fontSize: 12, marginBottom: 8, fontStyle: 'italic' }}>
+            💡 Dica do Gatinho: Para acessórios, tire uma foto bem nítida da etiqueta técnica ou modelo impresso!
+          </Text>
+        )}
         <TouchableOpacity style={[styles.photoBox, { backgroundColor: colors.card, borderColor: isDark ? colors.border : '#E2E8F0' }, images.label && [styles.photoBoxActive, { borderColor: colors.secondary }]]} onPress={() => pickImage('label')}>
           {images.label ? <Image source={{ uri: images.label }} style={styles.capturedImage} /> : (
             <View style={styles.photoPlaceholder}>
@@ -253,20 +355,26 @@ export default function CreateProductScreen() {
         <View style={styles.header}>
           <View style={styles.headerInfo}>
             <Text style={[styles.headerTitle, { color: colors.text }]}>Novo Item</Text>
-            <Text style={[styles.headerSubtitle, { color: colors.secondary }]}>Etapa {step}: {step === 1 ? 'Dados e Dimensões' : 'Fotos do Item'}</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.secondary }]}>
+              {step === 0 ? 'Escolha o Tipo' : `Etapa ${step}: ${step === 1 ? 'Dados e Dimensões' : 'Fotos do Item'}`}
+            </Text>
           </View>
           <Image source={require('../../assets/kitty_on_computer.png')} style={styles.kittyHeader} resizeMode="contain" />
         </View>
+        {step === 0 && renderStep0()}
         {step === 1 && renderStep1()}
         {step === 2 && renderStep2()}
-        <TouchableOpacity style={[styles.button, { backgroundColor: colors.secondary }, step === 2 && { backgroundColor: colors.success }]} onPress={step === 2 ? handleSubmit : handleNext} activeOpacity={0.8} disabled={loading}>
-          {loading ? <ActivityIndicator color={colors.white} /> : (
-            <>
-              <Text style={[styles.buttonText, { color: colors.white }]}>{step === 2 ? 'Finalizar Cadastro' : 'Avançar'}</Text>
-              <Ionicons name={step === 2 ? "checkmark-circle" : "arrow-forward"} size={22} color={colors.white} style={{ marginLeft: 8 }} />
-            </>
-          )}
-        </TouchableOpacity>
+        
+        {step > 0 && (
+          <TouchableOpacity style={[styles.button, { backgroundColor: colors.secondary }, step === 2 && { backgroundColor: colors.success }]} onPress={step === 2 ? handleSubmit : handleNext} activeOpacity={0.8} disabled={loading}>
+            {loading ? <ActivityIndicator color={colors.white} /> : (
+              <>
+                <Text style={[styles.buttonText, { color: colors.white }]}>{step === 2 ? 'Finalizar Cadastro' : 'Avançar'}</Text>
+                <Ionicons name={step === 2 ? "checkmark-circle" : "arrow-forward"} size={22} color={colors.white} style={{ marginLeft: 8 }} />
+              </>
+            )}
+          </TouchableOpacity>
+        )}
       </ScrollView>
       <ImagePickerModal visible={pickerVisible} onClose={() => setPickerVisible(false)} onCamera={openCamera} onLibrary={openLibrary} />
     </KeyboardAvoidingView>

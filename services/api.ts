@@ -42,9 +42,9 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}, toke
   const isFormData = options.body instanceof FormData || 
     (options.body && typeof options.body === 'object' && options.body.constructor.name === 'FormData');
   
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
 
   const currentToken = token || (await storage.getItem(TOKEN_KEY));

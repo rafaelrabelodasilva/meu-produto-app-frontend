@@ -21,6 +21,8 @@ import { ProductHeader } from '../../components/product/ProductHeader';
 import { ProductGallery } from '../../components/product/ProductGallery';
 import { ProductInfoSection } from '../../components/product/ProductInfoSection';
 import { ProductFooterActions } from '../../components/product/ProductFooterActions';
+import { LinkedProductsSection } from '../../components/product/LinkedProductsSection';
+import { ProductLinkModal } from '../../components/product/ProductLinkModal';
 
 // Hook
 import { useProductDetail } from '../../hooks/use-product-detail';
@@ -42,8 +44,13 @@ export default function ProductDetailScreen() {
     newImageUri,
     newLabelUri,
     measures,
+    linkedProducts,
+    linkedBy,
+    availableProducts,
+    linkedProductIds,
     deleteModalVisible,
     pickerVisible,
+    linkModalVisible,
     setEditData,
     setCategoryId,
     setCategoryName,
@@ -51,7 +58,9 @@ export default function ProductDetailScreen() {
     setMeasures,
     setDeleteModalVisible,
     setPickerVisible,
+    setLinkModalVisible,
     toggleEditing,
+    toggleProductLink,
     pickImage,
     openCamera,
     openLibrary,
@@ -106,6 +115,14 @@ export default function ProductDetailScreen() {
                 setPurchaseDate={setPurchaseDate}
                 setMeasures={setMeasures}
               />
+
+              <LinkedProductsSection
+                product={product}
+                linkedProducts={linkedProducts}
+                linkedBy={linkedBy}
+                isEditing={isEditing}
+                onManageLinks={() => setLinkModalVisible(true)}
+              />
             </View>
 
             <View style={styles.footerWrapper}>
@@ -152,7 +169,14 @@ export default function ProductDetailScreen() {
         onCamera={openCamera}
         onLibrary={openLibrary}
       />
+
+      <ProductLinkModal
+        visible={linkModalVisible}
+        onClose={() => setLinkModalVisible(false)}
+        availableProducts={availableProducts}
+        linkedProductIds={linkedProductIds}
+        onToggleLink={toggleProductLink}
+      />
     </KeyboardAvoidingView>
   );
 }
-

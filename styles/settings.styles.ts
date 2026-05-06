@@ -153,6 +153,18 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+  badge: {
+    backgroundColor: '#EF4444',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginRight: 10,
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: '900',
+  },
   footer: {
     alignItems: 'center',
     marginTop: 20,

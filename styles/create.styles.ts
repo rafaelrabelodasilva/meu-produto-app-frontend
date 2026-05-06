@@ -153,4 +153,18 @@ export const styles = StyleSheet.create({
   inputError: {
     borderColor: '#EF4444',
   },
+  card: {
+    padding: 20,
+    borderRadius: 16,
+    borderWidth: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    width: '100%',
+    maxWidth: 700,
+    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
 });

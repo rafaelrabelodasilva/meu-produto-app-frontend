@@ -228,6 +228,23 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.subtitle }]}>Gestão de Inventário</Text>
+          <TouchableOpacity 
+            style={[styles.menuItem, { backgroundColor: colors.card }]} 
+            onPress={() => router.push('/almoxarifado')}
+          >
+            <View style={[styles.iconWrapper, { backgroundColor: isDark ? colors.inputBg : '#FEF3C7' }]}>
+              <Ionicons name="build-outline" size={22} color="#D97706" />
+            </View>
+            <Text style={[styles.menuText, { color: colors.text }]}>Almoxarifado</Text>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>ÓRFÃOS</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#CBD5E1" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.subtitle }]}>Colaboração</Text>
           <TouchableOpacity 
             style={[styles.menuItem, { backgroundColor: colors.card }]} 
