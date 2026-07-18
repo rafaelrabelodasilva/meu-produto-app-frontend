@@ -250,6 +250,7 @@ export function useProductDetail(id: string) {
         name: editData.name,
         brand: editData.brand,
         model: editData.model,
+        type: editData.type,
         price: editData.price ? parseFloat(editData.price.toString().replace(',', '.')) : 0,
         size: updatedSize,
         notes: editData.notes,

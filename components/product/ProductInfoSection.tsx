@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TextInput, Platform } from 'react-native';
+import { View, Text, TextInput, Platform, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../context/theme-context';
 import { formatDate, formatCurrency, parseDateToBR } from '../../services/utils';
@@ -122,6 +122,45 @@ export const ProductInfoSection = ({
     <View style={styles.container}>
       <View style={[styles.card, { backgroundColor: colors.card }]}>
         <Text style={[styles.sectionTitle, { color: colors.secondary }]}>Dados do Produto</Text>
+
+        <View style={styles.inputGroup}>
+          <Text style={[styles.label, { color: colors.subtitle }]}>Tipo do Item</Text>
+          {isEditing ? (
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity
+                onPress={() => setEditData({ ...editData, type: 'MAIN' })}
+                style={{
+                  flex: 1,
+                  padding: 10,
+                  borderRadius: 10,
+                  borderWidth: editData?.type === 'MAIN' ? 2 : 1,
+                  borderColor: editData?.type === 'MAIN' ? colors.secondary : (isDark ? colors.border : '#E2E8F0'),
+                  backgroundColor: editData?.type === 'MAIN' ? (isDark ? colors.inputBg : '#EEF2FF') : 'transparent',
+                }}
+              >
+                <Text style={{ textAlign: 'center', color: colors.text, fontWeight: editData?.type === 'MAIN' ? '700' : '600' }}>PRINCIPAL</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setEditData({ ...editData, type: 'ACCESSORY' })}
+                style={{
+                  flex: 1,
+                  padding: 10,
+                  borderRadius: 10,
+                  borderWidth: editData?.type === 'ACCESSORY' ? 2 : 1,
+                  borderColor: editData?.type === 'ACCESSORY' ? '#D97706' : (isDark ? colors.border : '#E2E8F0'),
+                  backgroundColor: editData?.type === 'ACCESSORY' ? (isDark ? colors.inputBg : '#FEF3C7') : 'transparent',
+                }}
+              >
+                <Text style={{ textAlign: 'center', color: colors.text, fontWeight: editData?.type === 'ACCESSORY' ? '700' : '600' }}>ACESSÓRIO</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={[styles.badge, { backgroundColor: isDark ? colors.inputBg : '#F1F5F9' }]}>
+              <Text style={[styles.badgeText, { color: colors.secondary }]}>{product.type === 'ACCESSORY' ? 'ACESSÓRIO' : 'PRINCIPAL'}</Text>
+            </View>
+          )}
+        </View>
         
         {renderField('Nome do Item', isEditing ? editData.name : '', 'pricetag-outline', 'name')}
         
